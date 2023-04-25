@@ -1,0 +1,58 @@
+Initialisation :
+	couleuri ← blanc
+	initiateuri ← faux
+	bilani ← 0 /*Nombre d’émissions moins nombre de réception.*/
+	EGi ← ∅
+	Utilisé sur l’initiateur seulement :
+	NbÉtatsAttendusi ← 0 /*États devant être reçus.*/
+	NbMsgAttendusi ← 0 /*Messages devant être reçus.*/
+Début de l’instantané :
+/*Cette action ne s’effectue que sur un seul site, sur ordre du programme de base.*/
+	couleuri ← rouge
+	initiateuri ← vrai
+	EGi ← état local courant
+	NbÉtatsAttendusi ← N − 1 /* L’initiateur connait le nombre de sites. */
+	NbMsgAttendusi ← bilani
+Envoi d’un message m de l’application de base :
+	envoyer( m, couleuri )
+	bilani ← bilani +1
+Réception d’un message de l’application de base :
+	recevoir( m, c )
+	bilani ← bilani −1
+	si c == rouge et couleuri == blanc alors
+	// Première réception d’un message rouge. Si prend son instantané.
+		couleuri ← rouge
+		EGi ← état local courant
+		envoyer( [état] EG, bilani ) sur l’anneau
+	fin si
+	si c == blanc et couleuri == rouge alors
+	// Réception postclic d’un message envoyé préclic.
+		envoyer( [prépost] m ) sur l’anneau
+	fin si
+	traiter le message m
+Réception d’un message de type [état] :
+	recevoir( [état] EG, bilan ) /* Réception d’un état local et d’un bilan. */
+	si initiateuri == vrai alors
+	// Collecte des états des autres sites.
+		EGi ← EGi ∪ EG
+		NbÉtatsAttendusi ← NbÉtatsAttendusi − 1
+		NbMsgAttendusi ← NbMsgAttendusi + bilan
+		si NbÉtatsAttendusi == 0 et NbMsgAttendusi == 0 alors
+			Fin de l’algorithme
+		fin si
+	sinon
+		envoyer( [état] EG, bilan ) sur l’anneau
+	fin si
+Réception d’un message de type [prépost] :
+// Réception d’un message prépost retransmis sur l’anneau par son destinataire pour l’initiateur.
+	recevoir( [prépost] m )
+	si initiateuri == vrai alors
+	// Collecte des messages préposts.
+		NbMsgAttendusi ← NbMsgAttendusi −1
+		EGi ← EGi ∪ m
+		si NbÉtatsAttendusi == 0 et NbMsgAttendusi == 0 alors
+			Fin de l’algorithme
+		fin si
+	sinon
+		envoyer( [prépost] m ) sur l’anneau
+	fin si

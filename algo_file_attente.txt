@@ -1,0 +1,50 @@
+Initialisation :
+    Tabi[k]← (libération, 0) pour tout k ∈ {1,...,N}
+    //Tabi est un tableau de N couples (type, date), où type prend les valeurs requête, libération et accusé, et où date est un entier (date logique).
+    hi ← 0
+
+Réception d’une demande de section critique de l’application de base : 
+    recevoir( [demandeSC] ) de l’application de base
+    hi ← hi + 1
+    Tabi[i] ← (requête, hi)
+    envoyer( [requête] hi ) à tous les autres sites
+
+Réception fin de section critique de l’application de base : 
+    recevoir( [finSC] ) de l’application de base
+    hi ← hi + 1
+    Tabi[i] ← (libération, hi)
+    envoyer( [libération] hi ) à tous les autres sites.
+
+Réception d’un message de type requête : 
+    recevoir( [requête] h ) de Sj
+    hi← max(hi, h) + 1
+    Tabi[j] ← (requête, h)
+    envoyer( [accusé] hi ) à Sj
+    //L’arrivée du message pourrait permettre de satisfaire une éventuelle demande de Si. 
+    si Tabi[i].type == requête et (Tabi[i].date, i) <2 (Tabi[k].date, k) pour tout k != i alors
+        //Si est demandeur et sa requête est la plus ancienne.
+        envoyer( [débutSC] ) à l’application de base 
+     fin si
+
+Réception d’un message de type libération : 
+    recevoir( [libération] h ) de Sj
+    hi← max(hi, h) + 1
+    Tabi[j] ← (libération, h)
+    //L’arrivée du message pourrait permettre de satisfaire une éventuelle requête de Si.
+    si Tabi[i].type == requête et (Tabi[i].date, i) <2 (Tabi[k].date, k) pour tout k != i alors
+    //Si est demandeur et sa requête est la plus ancienne.
+        envoyer( [débutSC] ) à l’application de base 
+    fin si
+
+Réception d’un message de type accusé :
+    recevoir( [accusé] h ) de Sj 
+    hi← max(hi, h) + 1
+    si Tabi [j ].type != requête alors
+    //On n’écrase pas la date d’une requête par celle d’un accusé.
+        Tabi[j]← (accusé, h) 
+    fin si
+    //L’arrivée du message pourrait permettre de satisfaire une éventuelle demande de Si. 
+    si Tabi[i].type == requête et (Tabi[i].date, i) <2 (Tabi[k].date, k) pour tout k != i alors
+        //Si est demandeur et sa requête est la plus ancienne.
+        envoyer( [débutSC] ) à l’application de base 
+    fin si
