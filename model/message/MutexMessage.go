@@ -41,3 +41,7 @@ func New_MutexMessage(h int, typ TypeMessage) *MutexMessage {
 		typeMessage: typ,
 	}
 }
+
+func (nm MutexMessage) Get_Horloge() int {
+	return nm.horloge
+}

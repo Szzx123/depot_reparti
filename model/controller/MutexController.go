@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Szzx123/depot_reparti/model/message"
+	"github.com/Szzx123/depot_reparti/utils/timestamp"
 )
 
 type MutexController struct {
@@ -32,12 +33,12 @@ func (mc *MutexController) Receive_RequestSC() {
 		case instruction := <-mc.channel:
 			if instruction == "demandeSC" {
 				mc.horloge += 1
-				msg := mm.New_MutexMessage(mc.horloge, 1)
+				msg := message.New_MutexMessage(mc.horloge, 1)
 				mc.tab[mc.num] = *msg
 				// envoyer( [requête] hi ) à tous les autres sites
 			} else if instruction == "finSC" {
 				mc.horloge += 1
-				msg := mm.New_MutexMessage(mc.horloge, 0)
+				msg := message.New_MutexMessage(mc.horloge, 0)
 				mc.tab[mc.num] = *msg
 				// envoyer( [libération] hi ) à tous les autres sites.
 			}
@@ -76,7 +77,7 @@ func (mc *MutexController) ExtMessage_Handler() {
 func (mc *MutexController) Send_StartSC(ext_num int) {
 	if mc.tab[mc.num] == 1 {
 		for k := range mc.tab {
-			if k != mc.num && utils.compare_timestamp(mc.tab[mc.num], mc.num, mc.tab[ext_num], ext_num) {
+			if k != mc.num && timestamp.Compare_Timestamp(mc.tab[mc.num].Get_Horloge(), mc.num, mc.tab[ext_num].Get_Horloge(), ext_num) {
 				break
 			}
 		}
