@@ -24,7 +24,7 @@ Réception d’un message de type requête :
     si Tabi[i].type == requête et (Tabi[i].date, i) <2 (Tabi[k].date, k) pour tout k != i alors
         //Si est demandeur et sa requête est la plus ancienne.
         envoyer( [débutSC] ) à l’application de base 
-     fin si
+    fin si
 
 Réception d’un message de type libération : 
     recevoir( [libération] h ) de Sj
