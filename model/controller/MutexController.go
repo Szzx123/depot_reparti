@@ -1,22 +1,22 @@
-package MutexController
+package controller
 
 import (
 	"math"
 	"time"
 
-	mm "github.com/Szzx123/depot_reparti/model/MutexMessage"
+	"github.com/Szzx123/depot_reparti/model/message"
 )
 
 type MutexController struct {
-	num     int               //number of site
-	tab     []mm.MutexMessage //register the latest statues of all sites
-	horloge int               //horloge local
-	channel chan string       //channel to communicate with basic application
+	num     int                    //number of site
+	tab     []message.MutexMessage //register the latest statues of all sites
+	horloge int                    //horloge local
+	channel chan string            //channel to communicate with basic application
 }
 
 func New_MutexController() *MutexController {
 	channel := make(chan string)
-	tab := make([]mm.MutexMessage, 5) //怎么样知道初始有多少site？
+	tab := make([]message.MutexMessage, 5) //怎么样知道初始有多少site？
 	return &MutexController{
 		num:     1, //根据全局变量来？
 		horloge: 0,
@@ -76,7 +76,7 @@ func (mc *MutexController) ExtMessage_Handler() {
 func (mc *MutexController) Send_StartSC(ext_num int) {
 	if mc.tab[mc.num] == 1 {
 		for k := range mc.tab {
-			if k != mc.num && timestamp.compare_timestamp(mc.tab[mc.num], mc.num, mc.tab[ext_num], ext_num) {
+			if k != mc.num && utils.compare_timestamp(mc.tab[mc.num], mc.num, mc.tab[ext_num], ext_num) {
 				break
 			}
 		}

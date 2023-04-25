@@ -1,4 +1,4 @@
-package MutexMessage
+package message
 
 type MutexMessage struct {
 	horloge     int
