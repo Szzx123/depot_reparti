@@ -1,4 +1,4 @@
-package controller
+package MutexController
 
 import (
 	"math"
@@ -57,31 +57,29 @@ func (mc *MutexController) ExtMessage_Handler() {
 			mc.horloge = math.MaxInt(mc.horloge, ext_horloge) + 1
 			mc.tab[ext_num] = *mm.New_MutexMessage(mc.horloge, 1)
 			// envoyer( [accusé] hi ) à Sj
-			mc.Send_StartSC()
+			mc.Send_StartSC(ext_num)
 		} else if type_message == "libération" {
 			mc.horloge = math.MaxInt(mc.horloge, ext_horloge) + 1
 			mc.tab[ext_num] = *mm.New_MutexMessage(mc.horloge, 0)
-			mc.Send_StartSC()
+			mc.Send_StartSC(ext_num)
 		} else if type_message == "accusé" {
 			mc.horloge = math.MaxInt(mc.horloge, ext_horloge) + 1
 			if mc.tab[ext_num].typeMessage != 1 {
 				mc.tab[ext_num] = *mm.New_MutexMessage(mc.horloge, 2)
 			}
-			mc.Send_StartSC()
+			mc.Send_StartSC(ext_num)
 		}
-	}	
-}
-
-//L’arrivée du message pourrait permettre de satisfaire une éventuelle demande de Si. 
-func (mc *MutexController) Send_StartSC() {
-	if mc.tab[mc.num] == 1 {
-		for k := range mc.tab {
-			if k != mc.num && (Tabi[i].date, i) >2 (Tabi[k].date, k) {
-				break
-			}
-		}
-		mc.channel <- "debutSC" // envoyer( [débutSC] ) à l’application de base 
 	}
 }
 
-
+// L’arrivée du message pourrait permettre de satisfaire une éventuelle demande de Si.
+func (mc *MutexController) Send_StartSC(ext_num int) {
+	if mc.tab[mc.num] == 1 {
+		for k := range mc.tab {
+			if k != mc.num && timestamp.compare_timestamp(mc.tab[mc.num], mc.num, mc.tab[ext_num], ext_num) {
+				break
+			}
+		}
+		mc.channel <- "debutSC" // envoyer( [débutSC] ) à l’application de base
+	}
+}
