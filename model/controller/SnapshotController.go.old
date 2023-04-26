@@ -10,8 +10,6 @@ var (
 	N int = 5
 )
 
-type ISnapshotController interface {
-}
 type SnapshotController struct {
 	num           int //number of site
 	bilan         int //Nombre d’émissions moins nombre de réception

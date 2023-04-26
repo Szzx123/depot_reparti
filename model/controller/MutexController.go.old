@@ -15,11 +15,11 @@ type MutexController struct {
 	channel chan string            //channel to communicate with basic application
 }
 
-func New_MutexController() *MutexController {
+func New_MutexController(num int) *MutexController {
 	channel := make(chan string)
 	tab := make([]message.MutexMessage, 5) //怎么样知道初始有多少site？
 	return &MutexController{
-		num:     1, //根据全局变量来？
+		num:     num,
 		horloge: 0,
 		tab:     tab,
 		channel: channel,

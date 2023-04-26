@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WareHouse System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">WareHouse</a>
+  </nav>
+
+  <div class="container mt-5">
+    <form id="form">
+        <div class="form-group">
+            <label for="cargo">Cargo:</label>
+            <select id="cargo" name="cargo" class="form-control">
+              <option value="">Select Cargo</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+        </div>
+
+      <div class="form-group">
+        <label for="type">In/Out:</label>
+        <select id="type" name="type" class="form-control">
+          <option value="in">In</option>
+          <option value="out">Out</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    const form = document.getElementById('form');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();  // 阻止表单默认提交行为
+
+      const cargo = document.getElementById('cargo').value;
+      const type = document.getElementById('type').value;
+      const quantity = document.getElementById('quantity').value;
+      const data = {
+        site: window.location.port,
+        cargo: cargo,
+        type: type,
+        quantity: quantity
+      };
+      console.log(data)
+      // 通过 WebSocket 发送表单数据到后端
+      // const socket = new WebSocket('localhost:${window.location.port}/ws');
+      const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+      socket.addEventListener('open', (event) => {
+        console.log('WebSocket Connection has been established');
+        socket.send(JSON.stringify(data));  // 将表单数据转为 JSON 字符串并发送到后端
+      });
+
+      socket.addEventListener('message', (event) => {
+        console.log('Message received:', event.data);
+      });
+
+      socket.addEventListener('close', (event) => {
+        console.log('WebSocket Connexion has been closed');
+      });
+    });
+  </script>
+</body>
+</html>
