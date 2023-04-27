@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Szzx123/depot_reparti/model/message"
+	"github.com/Szzx123/depot_reparti/model/site"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -55,6 +56,6 @@ func Cargo_Handler(c *gin.Context) {
 			log.Printf("发送消息失败: %s", err)
 			break
 		}
-		Clients[msg.Site].Channel_message <- msg
+		site.Sites[msg.Site].Channel_message <- msg
 	}
 }

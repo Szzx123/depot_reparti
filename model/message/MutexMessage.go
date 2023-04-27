@@ -1,6 +1,7 @@
 package message
 
 type MutexMessage struct {
+	site        string
 	horloge     int
 	typeMessage TypeMessage
 }
@@ -10,10 +11,10 @@ type TypeMessage int
 const (
 	Release   TypeMessage = 0
 	Request   TypeMessage = 1
-	ACK       TypeMessage = 3
-	demandeSC TypeMessage = 4
-	startSC   TypeMessage = 5
-	endSC     TypeMessage = 6
+	ACK       TypeMessage = 2
+	demandeSC TypeMessage = 3
+	startSC   TypeMessage = 4
+	endSC     TypeMessage = 5
 )
 
 func (tm TypeMessage) String() string {
@@ -35,13 +36,22 @@ func (tm TypeMessage) String() string {
 	}
 }
 
-func New_MutexMessage(h int, typ TypeMessage) *MutexMessage {
+func New_MutexMessage(site string, h int, typ TypeMessage) *MutexMessage {
 	return &MutexMessage{
+		site:        site,
 		horloge:     h,
 		typeMessage: typ,
 	}
 }
 
-func (nm MutexMessage) Get_Horloge() int {
-	return nm.horloge
+func (mm MutexMessage) Get_Horloge() int {
+	return mm.horloge
+}
+
+func (mm MutexMessage) Get_typeMessage() string {
+	return mm.typeMessage.String()
+}
+
+func (mm MutexMessage) Get_Site() string {
+	return mm.site
 }
