@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/Szzx123/depot_reparti/model/message"
-	"github.com/Szzx123/depot_reparti/model/site"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -49,13 +48,12 @@ func Cargo_Handler(c *gin.Context) {
 			continue
 		}
 
-		fmt.Printf("site: %s, cargo: %s, operation: %s, quantity: %s\n", msg.Site, msg.Cargo, msg.Type, msg.Quantity)
+		fmt.Printf("/=receiver=%s/=type=demandeSC/=cargo=%s/=operation=%s/=quantity=%s/=sender=%s/=hlg=%d\n", msg.Site, msg.Cargo, msg.Type, msg.Quantity, msg.Site, 0)
 
 		// 发送消息
 		if err := conn.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
 			log.Printf("发送消息失败: %s", err)
 			break
 		}
-		site.Sites[msg.Site].Channel_message <- msg
 	}
 }

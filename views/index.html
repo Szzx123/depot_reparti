@@ -12,6 +12,14 @@
   </nav>
 
   <div class="container mt-5">
+    <form>
+      <p>
+         <button id="connecter" class="btn btn-primary">Connecter</button>
+         <button id="fermer" class="btn btn-primary">Fermer</button>
+         host : <input id="host" type="text" size="10" value="localhost">
+         port : <input id="port" type="text" maxlength="5" size="5" value="8080">
+      </p>
+    </form>
     <form id="form">
         <div class="form-group">
             <label for="cargo">Cargo:</label>
@@ -40,11 +48,60 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
+  <hr>
+  <b> Logs </b>
+  <div id="logs" style="max-height: 40vh;overflow-y: scroll;"></div>
 
   <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
-  <script>
-    const form = document.getElementById('form');
 
+  <script>
+    function addToLog(message) {
+     var logs = document.getElementById("logs");
+     var d = document.createElement("div");
+     d.textContent = message;
+     logs.appendChild(d);
+     logs.scroll(0, logs.scrollHeight);
+    }
+    var socket
+    document.getElementById("connecter").onclick = function(evt) {
+      if (socket) {
+          return false;
+      }
+              
+      var host = document.getElementById("host").value;
+      var port = document.getElementById("port").value;
+              
+      addToLog("Tentative de connexion")
+      addToLog("host = " + host + ", port = " + port)
+      socket = new WebSocket("ws://"+host+":"+port+"/ws");
+              
+      socket.onopen = function(evt) {
+        addToLog("Websocket ouverte");
+      }
+              
+      socket.onclose = function(evt) {
+        addToLog("Websocket fermée");
+        ws = null;
+      }
+              
+      socket.onmessage = function(evt) {
+        addToLog("Réception: " + evt.data);
+      }
+              
+      socket.onerror = function(evt) {
+        addToLog("Erreur: " + evt.data);
+      }
+      return false;
+    }
+    document.getElementById("fermer").onclick = function(evt) {
+      if (!socket) {
+        return false;
+      }
+      socket.close();
+      return false;
+    }
+    const form = document.getElementById('form');
+    // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     form.addEventListener('submit', (event) => {
       event.preventDefault();  // 阻止表单默认提交行为
 
@@ -59,11 +116,11 @@
       };
       console.log(data)
       // 通过 WebSocket 发送表单数据到后端
-      // const socket = new WebSocket('localhost:${window.location.port}/ws');
-      const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
       socket.addEventListener('open', (event) => {
         console.log('WebSocket Connection has been established');
-        socket.send(JSON.stringify(data));  // 将表单数据转为 JSON 字符串并发送到后端
+        var msg_to_send = JSON.stringify(data)
+        socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
+        addToLog("Envoi: " + msg_to_send);
       });
 
       socket.addEventListener('message', (event) => {
