@@ -1,5 +1,7 @@
 package depot
 
+import "fmt"
+
 type Depot struct {
 	storeHouse map[string]int //key:name of goods val:number
 }
@@ -18,10 +20,12 @@ func New_Depot() *Depot {
 
 func (d *Depot) Cargo_IN(cargo string, num int) {
 	d.storeHouse[cargo] += num
+	fmt.Println(d)
 }
 
 func (d *Depot) Cargo_OUT(cargo string, num int) {
 	if d.storeHouse[cargo]-num >= 0 {
 		d.storeHouse[cargo] -= num
 	}
+	fmt.Println(d)
 }

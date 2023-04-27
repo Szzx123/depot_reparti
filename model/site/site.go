@@ -95,17 +95,21 @@ func (mc *Lock) Receive_RequestSC() {
 		select {
 		case instruction := <-mc.Channel_base:
 			if instruction == "demandeSC" {
+				fmt.Println(mc.num, "收到demandeSC")
 				mc.horloge += 1
 				msg := message.New_MutexMessage(mc.num, mc.horloge, 1)
 				mc.tab[mc.num] = *msg
 				// envoyer( [requête] hi ) à tous les autres sites
 				mc.Diffusion(*msg)
+				fmt.Println(mc.tab)
 			} else if instruction == "finSC" {
+				fmt.Println(mc.num, "收到finSC")
 				mc.horloge += 1
 				msg := message.New_MutexMessage(mc.num, mc.horloge, 0)
 				mc.tab[mc.num] = *msg
 				// envoyer( [libération] hi ) à tous les autres sites.
 				mc.Diffusion(*msg)
+				fmt.Println(mc.tab)
 			}
 		default:
 			time.Sleep(100 * time.Millisecond)
@@ -118,25 +122,33 @@ func (mc *Lock) Receive_RequestSC() {
 // Réception d’un message de type accusé
 func (mc *Lock) ExtMessage_Handler() {
 	for {
-		msg := <-mc.Channel_ctl
-		ext_num := msg.Get_Site()
-		if msg.Get_typeMessage() == "requête" {
-			mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
-			mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 1)
-			// envoyer( [accusé] hi ) à Sj
-			mc.Send(ext_num, *message.New_MutexMessage(mc.num, mc.horloge, 2))
-			mc.Send_StartSC(ext_num)
-		} else if msg.Get_typeMessage() == "libération" {
-			mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
-			mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 0)
-			mc.Send_StartSC(ext_num)
-		} else if msg.Get_typeMessage() == "accusé" {
-			mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
-			if mc.tab[ext_num].Get_typeMessage() != "requête" {
-				mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 2)
+		select {
+		case msg := <-mc.Channel_ctl:
+			ext_num := msg.Get_Site()
+			if msg.Get_typeMessage() == "requête" {
+				mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
+				mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 1)
+				// envoyer( [accusé] hi ) à Sj
+				mc.Send(ext_num, *message.New_MutexMessage(mc.num, mc.horloge, 2))
+				mc.Send_StartSC(ext_num)
+				fmt.Println(mc.tab)
+			} else if msg.Get_typeMessage() == "libération" {
+				mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
+				mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 0)
+				mc.Send_StartSC(ext_num)
+				fmt.Println(mc.tab)
+			} else if msg.Get_typeMessage() == "accusé" {
+				mc.horloge = utils.Recaler(mc.horloge, msg.Get_Horloge())
+				if mc.tab[ext_num].Get_typeMessage() != "requête" {
+					mc.tab[ext_num] = *message.New_MutexMessage(mc.num, mc.horloge, 2)
+				}
+				mc.Send_StartSC(ext_num)
+				fmt.Println(mc.tab)
 			}
-			mc.Send_StartSC(ext_num)
+		default:
+			time.Sleep(100 * time.Millisecond)
 		}
+
 	}
 }
 
