@@ -5,19 +5,14 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
+
+	"github.com/Szzx123/depot_reparti/global"
+	"github.com/Szzx123/depot_reparti/model/message"
+	"github.com/Szzx123/depot_reparti/utils"
 )
 
 var (
-	// Site_1                  = New_Site("8080")
-	// Site_2                  = New_Site("8081")
-	// Site_3                  = New_Site("8082")
-	// Sites  map[string]*Site = map[string]*Site{
-	// 	"8080": Site_1,
-	// 	"8081": Site_2,
-	// 	"8082": Site_3,
-	// }
 	mutex = &sync.Mutex{}
 )
 
@@ -36,38 +31,90 @@ func (site *Site) Run() {
 }
 
 func (site *Site) Message_Interceptor() {
-	var rcv_msg, cargo, msg_type, operation, sender string
-	var quantity int
-	var to_operate_cargo bool = false
+	// var to_operate_cargo bool = false
 	l := log.New(os.Stderr, "", 0)
-	l.Println("Start of message_handler ", site.Num)
+	l.Println("Start of message_interceptor ", site.Num)
 	for {
+		var rcv_msg, cargo, msg_type, operation, receiver, sender string
+		var quantity, stock_A, stock_B, stock_C int
 		fmt.Scanln(&rcv_msg)
-		// mutex.Lock()
+		mutex.Lock() // treat champ sender
+		sender = utils.Findval(rcv_msg, "sender")
+		if sender != "C"+site.Num[1:] {
+			mutex.Unlock()
+			continue
+		}
+
+		// treat champ receiver
+		receiver = utils.Findval(rcv_msg, "receiver")
+		if receiver == "All" || receiver != site.Num {
+			mutex.Unlock()
+			continue
+		}
 		l.Printf("site %s received message: %s", site.Num, rcv_msg)
-		tab_allkeyval := strings.Split(rcv_msg[1:], rcv_msg[0:1])
-		for _, key_val := range tab_allkeyval {
-			tab_keyval := strings.Split(key_val[1:], key_val[0:1])
-			if tab_keyval[0] == "receiver" {
-				receiver := tab_keyval[1]
-				if receiver != site.Num {
-					break
-				}
-			} else if tab_keyval[0] == "type" && tab_keyval[1] == "débutSC" {
-				//允许后进行库存操作
-				to_operate_cargo = true
-			} else if tab_keyval[0] == "cargo" {
-				cargo = tab_keyval[1]
-			} else if tab_keyval[0] == "operation" {
-				operation = tab_keyval[1]
-			} else if tab_keyval[0] == "quantity" {
-				quantity, _ = strconv.Atoi(tab_keyval[1])
-			} else if tab_keyval[0] == "sender" {
-				sender = tab_keyval[1]
-			}
+		// treat champ type
+		msg_type = utils.Findval(rcv_msg, "type")
+		switch msg_type {
+		case "débutSC":
+		case "updateSC":
+		default:
+			l.Println("Unknown message type")
+			mutex.Unlock()
+			continue
 		}
-		if to_operate_cargo {
-			l.Println(cargo, msg_type, operation, quantity, sender) ////////
+
+		// treat champ cargo
+		cargo = utils.Findval(rcv_msg, "cargo")
+
+		// treat champ operation
+		operation = utils.Findval(rcv_msg, "operation")
+
+		// treat champ quantity
+		quantity_string := utils.Findval(rcv_msg, "quantity")
+		if quantity_string != "" {
+			quantity, _ = strconv.Atoi(quantity_string)
 		}
+
+		stock_A_string := utils.Findval(rcv_msg, "A")
+		if stock_A_string != "" {
+			stock_A, _ = strconv.Atoi(stock_A_string)
+		}
+
+		stock_B_string := utils.Findval(rcv_msg, "B")
+		if stock_B_string != "" {
+			stock_B, _ = strconv.Atoi(stock_B_string)
+		}
+
+		stock_C_string := utils.Findval(rcv_msg, "C")
+		if stock_C_string != "" {
+			stock_C, _ = strconv.Atoi(stock_C_string)
+		}
+
+		msg_to_handle := message.New_SiteMessage(msg_type, cargo, operation, quantity, stock_A, stock_B, stock_C)
+		site.Message_Handler(*msg_to_handle)
+		mutex.Unlock()
 	}
+}
+
+func (site *Site) Message_Handler(msg message.SiteMessage) {
+	l := log.New(os.Stderr, "", 0) // test
+	switch msg.TypeMessage {
+	case "débutSC":
+		// 操作库存
+		if msg.Operation == "in" {
+			global.Depot.Cargo_IN(msg.Cargo, msg.Quantity)
+		} else if msg.Operation == "out" {
+			global.Depot.Cargo_OUT(msg.Cargo, msg.Quantity)
+		}
+		// l.Println(global.Depot) // test
+		// 发送finSC给ctl
+		utils.Msg_send(utils.Msg_format("receiver", "C"+site.Num[1:]) + utils.Msg_format("type", "finSC") + utils.Msg_format("sender", site.Num) + utils.Msg_format("A", strconv.Itoa(global.Depot.StoreHouse["A"])) + utils.Msg_format("B", strconv.Itoa(global.Depot.StoreHouse["B"])) + utils.Msg_format("C", strconv.Itoa(global.Depot.StoreHouse["C"])))
+	case "updateSC":
+		// 更新所有库存信息
+		global.Depot.Set_Cargo("A", msg.Stock_A)
+		global.Depot.Set_Cargo("B", msg.Stock_B)
+		global.Depot.Set_Cargo("C", msg.Stock_C)
+		l.Println(site.Num, " ", global.Depot)
+	}
+
 }
