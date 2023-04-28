@@ -47,7 +47,7 @@ func (site *Site) Message_Interceptor() {
 
 		// treat champ receiver
 		receiver = utils.Findval(rcv_msg, "receiver")
-		if receiver == "All" || receiver != site.Num {
+		if receiver != site.Num {
 			mutex.Unlock()
 			continue
 		}

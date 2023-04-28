@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/Szzx123/depot_reparti/model/message"
 	"github.com/Szzx123/depot_reparti/utils"
@@ -19,10 +20,17 @@ type Controller struct {
 	num     string                          //number of site
 	tab     map[string]message.MutexMessage //register the latest statues of all sites
 	horloge int                             //horloge local
+	ok      bool
 }
 
 func New_Controller(num string) *Controller {
 	tab := make(map[string]message.MutexMessage)
+	msg_1 := message.New_MutexMessage("C1", 0, 0, "", 0, "", 0, 0, 0)
+	msg_2 := message.New_MutexMessage("C2", 0, 0, "", 0, "", 0, 0, 0)
+	msg_3 := message.New_MutexMessage("C3", 0, 0, "", 0, "", 0, 0, 0)
+	tab["C1"] = *msg_1
+	tab["C2"] = *msg_2
+	tab["C3"] = *msg_3
 	return &Controller{
 		num:     num,
 		horloge: 0,
@@ -55,9 +63,8 @@ func (ctl *Controller) Message_Interceptor() {
 		if receiver == "" || sender == ctl.num {
 			mutex.Unlock()
 			continue
-		} else if receiver == "All" {
-			utils.Msg_send(rcv_msg)
 		} else if receiver != ctl.num {
+			utils.Msg_send(rcv_msg)
 			mutex.Unlock()
 			continue
 		}
@@ -118,6 +125,7 @@ func (ctl *Controller) Message_Interceptor() {
 		}
 
 		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C)
+		time.Sleep(5 * time.Second)
 		ctl.Message_Handler(msg_to_handle)
 		mutex.Unlock()
 	}
@@ -128,15 +136,20 @@ func (ctl *Controller) Message_Interceptor() {
 // Réception d’un message de type accusé
 func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 	ext_num := msg.Get_Site()
-	// l := log.New(os.Stderr, "", 0)
+	l := log.New(os.Stderr, "", 0)
 	switch msg.Get_typeMessage() {
 	case "demandeSC":
 		ctl.horloge += 1
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0)
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [requête] hi ) à tous les autres sites
-		utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "request") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
-		// l.Println(ctl.tab)
+		for i := 1; i <= 3; i++ {
+			if strconv.Itoa(i) != ctl.num[1:] {
+				utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "request") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
+			}
+		}
+		ctl.ok = true
+		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "finSC":
 		ctl.horloge += 1
 		stock_A := msg.Stock_A
@@ -145,46 +158,58 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C)
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [libération] hi ) à tous les autres sites.
-		utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
-		// l.Println(ctl.tab)
+		for i := 1; i <= 3; i++ {
+			if strconv.Itoa(i) != ctl.num[1:] {
+				utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
+			}
+		}
+		// utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
+		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "request":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 		ctl.tab[ext_num] = *msg
 		// envoyer( [accusé] hi ) à Sj
 		utils.Msg_send(utils.Msg_format("receiver", ext_num) + utils.Msg_format("type", "ack") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
-		ctl.Send_StartSC(ext_num)
-		// l.Println(ctl.tab) // test
+		ctl.Send_StartSC()
+		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "release":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 		stock_A := msg.Stock_A
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
 		ctl.tab[ext_num] = *msg
-		// 更新每个站点的库存信息副本，再尝试进入section critique
 		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "updateSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
-		ctl.Send_StartSC(ext_num)
-		// l.Println(ctl.tab) // test
+		ctl.Send_StartSC()
+		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "ack":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 		if ctl.tab[ext_num].Get_typeMessage() != "request" {
-			ctl.tab[ext_num] = *message.New_MutexMessage(ctl.num, ctl.horloge, 2, "", 0, "", 0, 0, 0)
+			ctl.tab[ext_num] = *msg
 		}
-		ctl.Send_StartSC(ext_num)
-		// l.Println(ctl.tab) // test
+		ctl.Send_StartSC()
+		l.Println(ctl.num, ": ", ctl.tab) // test
 	}
 }
 
 // L’arrivée du message pourrait permettre de satisfaire une éventuelle demande de Si.
-func (ctl *Controller) Send_StartSC(ext_num string) {
-	ext_num_int, _ := strconv.Atoi(ext_num)
-	num, _ := strconv.Atoi(ctl.num)
+func (ctl *Controller) Send_StartSC() {
+	if !ctl.ok {
+		return
+	}
+	num, _ := strconv.Atoi(ctl.num[1:])
 	// l := log.New(os.Stderr, "", 0)
+	// l.Println(ctl.num, "尝试进入Section Critique")
 	if ctl.tab[ctl.num].Get_typeMessage() == "request" {
 		for k := range ctl.tab {
-			if k != ctl.num && utils.Compare_Timestamp(ctl.tab[ctl.num[1:]].Get_Horloge(), num, ctl.tab[ext_num[1:]].Get_Horloge(), ext_num_int) {
-				break
+			ext_num, _ := strconv.Atoi(k[1:])
+			// l.Println("本人时钟：", ctl.tab[ctl.num].Get_Horloge(), "本人站点号", num, "对比时钟", ctl.tab[k].Get_Horloge(), "对比站点号", ext_num)
+			if k != ctl.num && !utils.Compare_Timestamp(ctl.tab[ctl.num].Get_Horloge(), num, ctl.tab[k].Get_Horloge(), ext_num) {
+				// l.Println(ctl.num, "进入Section Critique失败")
+				return
 			}
 		}
+		// l.Println(ctl.num, "进入Section Critique成功")
 		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "débutSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("cargo", ctl.tab[ctl.num].Cargo) + utils.Msg_format("operation", ctl.tab[ctl.num].Operation) + utils.Msg_format("quantity", strconv.Itoa(ctl.tab[ctl.num].Quantity)))
+		ctl.ok = false
 	}
 }
