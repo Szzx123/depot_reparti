@@ -1,7 +1,9 @@
 package message
 
 type SnapshotMessage struct {
-	message string
+	//message string
+	site    string
+	horloge int
 	color   Color
 }
 
@@ -23,10 +25,18 @@ func (c Color) String() string {
 	}
 }
 
+func New_SnapshotMessage(site string, h int, color Color) *SnapshotMessage {
+	return &SnapshotMessage{
+		site:    site,
+		horloge: h,
+		color:   color,
+	}
+}
+
 func (sm SnapshotMessage) Get_Color() Color {
 	return sm.color
 }
 
-func (sm SnapshotMessage) Get_Message() string {
-	return sm.message
+func (sm SnapshotMessage) Get_Site() string {
+	return sm.site
 }

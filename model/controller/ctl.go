@@ -17,10 +17,12 @@ var (
 )
 
 type Controller struct {
-	num     string                          //number of site
-	tab     map[string]message.MutexMessage //register the latest statues of all sites
-	horloge int                             //horloge local
-	ok      bool
+	num         string                          //number of site
+	tab         map[string]message.MutexMessage //register the latest statues of all sites
+	horloge     int                             //horloge local
+	ok          bool
+	horloge_vec []int
+	color       int
 }
 
 func New_Controller(num string) *Controller {
@@ -31,10 +33,16 @@ func New_Controller(num string) *Controller {
 	tab["C1"] = *msg_1
 	tab["C2"] = *msg_2
 	tab["C3"] = *msg_3
+	horloge_vec := make([]int, 3)
+	for i := 0; i < len(horloge_vec); i++ {
+		horloge_vec[i] = 1
+	}
 	return &Controller{
-		num:     num,
-		horloge: 0,
-		tab:     tab,
+		num:         num,
+		horloge:     1,
+		tab:         tab,
+		horloge_vec: horloge_vec,
+		color:       0,
 	}
 }
 
@@ -140,6 +148,13 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 	switch msg.Get_typeMessage() {
 	case "demandeSC":
 		ctl.horloge += 1
+		// Mettre à jour l'horloge vectorielle
+		num, err := strconv.Atoi(ctl.num[1:])
+		if err != nil {
+			// Handle error
+		}
+		ctl.horloge_vec[num-1] += 1
+
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0)
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [requête] hi ) à tous les autres sites
@@ -152,6 +167,13 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "finSC":
 		ctl.horloge += 1
+		// Mettre à jour l'horloge vectorielle
+		num, err := strconv.Atoi(ctl.num[1:])
+		if err != nil {
+			// Handle error
+		}
+		ctl.horloge_vec[num-1] += 1
+
 		stock_A := msg.Stock_A
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
@@ -167,6 +189,16 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "request":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
+
+		// Mettre à jour l'horloge vectorielle
+		arr := []int{msg.h1, msg.h2, msg.h3}
+		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		num, err := strconv.Atoi(ctl.num[1:])
+		if err != nil {
+			// Handle error
+		}
+		ctl.horloge_vec[num-1] += 1
+
 		ctl.tab[ext_num] = *msg
 		// envoyer( [accusé] hi ) à Sj
 		utils.Msg_send(utils.Msg_format("receiver", ext_num) + utils.Msg_format("type", "ack") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
@@ -174,6 +206,16 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "release":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
+
+		// Mettre à jour l'horloge vectorielle
+		arr := []int{msg.h1, msg.h2, msg.h3}
+		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		num, err := strconv.Atoi(ctl.num[1:])
+		if err != nil {
+			// Handle error
+		}
+		ctl.horloge_vec[num-1] += 1
+
 		stock_A := msg.Stock_A
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
@@ -183,10 +225,70 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "ack":
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
+
+		// Mettre à jour l'horloge vectorielle
+		arr := []int{msg.h1, msg.h2, msg.h3}
+		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		num, err := strconv.Atoi(ctl.num[1:])
+		if err != nil {
+			// Handle error
+		}
+		ctl.horloge_vec[num-1] += 1
+
 		if ctl.tab[ext_num].Get_typeMessage() != "request" {
 			ctl.tab[ext_num] = *msg
 		}
 		ctl.Send_StartSC()
+		l.Println(ctl.num, ": ", ctl.tab) // test
+	case "demandeSnapshot":
+		if ext_num == ctl.num {
+			if color == 1 {
+
+			}
+			color = 1
+			for i := 1; i <= 3; i++ {
+				if strconv.Itoa(i) != ctl.num[1:] {
+					utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
+				}
+			}
+		} else {
+			if color == 0 {
+				//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
+
+				utils.Msg_send(utils.Msg_format("receiver", "C"+ext_num+utils.Msg_format("type", "finSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge", strconv.Itoa(ctl.horloge))))
+
+				color = 1
+			}
+		}
+		//ctl.horloge += 1
+		//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
+		//ctl.tab[ctl.num] = *new_msg
+		//// envoyer( [requête] hi ) à tous les autres sites
+		//for i := 1; i <= 3; i++ {
+		//	if strconv.Itoa(i) != ctl.num[1:] {
+		//		utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
+		//	}
+		//}
+		//l.Println(ctl.num, ": ", ctl.tab) // test
+	case "finSnapshot":
+		if ext_num == ctl.num {
+
+		} else {
+
+		}
+		//ctl.horloge += 1
+		stock_A := msg.Stock_A
+		stock_B := msg.Stock_B
+		stock_C := msg.Stock_C
+		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C)
+		ctl.tab[ctl.num] = *new_msg
+		// envoyer( [libération] hi ) à tous les autres sites.
+		for i := 1; i <= 3; i++ {
+			if strconv.Itoa(i) != ctl.num[1:] {
+				utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
+			}
+		}
+		// utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	}
 }

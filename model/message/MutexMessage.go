@@ -10,6 +10,9 @@ type MutexMessage struct {
 	Stock_A     int
 	Stock_B     int
 	Stock_C     int
+	h1          int
+	h2          int
+	h3          int
 }
 
 type TypeMessage int

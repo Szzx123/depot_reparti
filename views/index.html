@@ -57,6 +57,9 @@
   <b> Logs </b>
   <div id="logs" style="max-height: 40vh;overflow-y: scroll;"></div>
 
+  <b> Snapshots </b>
+  <div id="snapshots" style="max-height: 40vh;overflow-y: scroll;"></div>
+
   <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
 
   <script>
@@ -66,6 +69,14 @@
      d.textContent = message;
      logs.appendChild(d);
      logs.scroll(0, logs.scrollHeight);
+    }
+
+    function addToSnapshot(message) {
+      var snapshots = document.getElementById("snapshots");
+      var d = document.createElement("div");
+      d.textContent = message;
+      snapshots.appendChild(d);
+      snapshots.scroll(0, snapshots.scrollHeight);
     }
     // var socket
     // document.getElementById("connecter").onclick = function(evt) {
@@ -170,11 +181,12 @@
         console.log('WebSocket Connection has been established');
         var msg_to_send = JSON.stringify(data)
         socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
-        addToLog("Envoi: " + msg_to_send);
+        addToLog("Snapshot: " + msg_to_send)
       });
 
       socket.addEventListener('message', (event) => {
         console.log('Message received:', event.data);
+        addToSnapshot(event.data);
       });
 
       socket.addEventListener('close', (event) => {

@@ -115,6 +115,8 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
 		l.Println(site.Num, " ", global.Depot)
+	case "sendSnapshot":
+
 	}
 
 }
