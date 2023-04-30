@@ -49,7 +49,7 @@
       <br>
       <br>
 
-      <button type="submit" id="btn-snap" class="btn btn-warning">Snapshot</button>
+      <button id="btn-snap" class="btn btn-warning">Snapshot</button>
 
     </form>
   </div>
@@ -147,9 +147,9 @@
       });
     });
 
-    const snap = document.getElementById('btn-snap');
+    const snap = document.querySelector("#btn-snap");
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
-    snap.addEventListener('submit', (event) => {
+    snap.addEventListener("click", (event) => {
       event.preventDefault();  // 阻止表单默认提交行为
       var site = window.location.port;
       if (site == "8080") {
