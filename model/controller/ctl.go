@@ -27,9 +27,9 @@ type Controller struct {
 
 func New_Controller(num string) *Controller {
 	tab := make(map[string]message.MutexMessage)
-	msg_1 := message.New_MutexMessage("C1", 0, 0, "", 0, "", 0, 0, 0)
-	msg_2 := message.New_MutexMessage("C2", 0, 0, "", 0, "", 0, 0, 0)
-	msg_3 := message.New_MutexMessage("C3", 0, 0, "", 0, "", 0, 0, 0)
+	msg_1 := message.New_MutexMessage("C1", 1, 0, "", 0, "", 0, 0, 0, 1, 1, 1)
+	msg_2 := message.New_MutexMessage("C2", 1, 0, "", 0, "", 0, 0, 0, 1, 1, 1)
+	msg_3 := message.New_MutexMessage("C3", 1, 0, "", 0, "", 0, 0, 0, 1, 1, 1)
 	tab["C1"] = *msg_1
 	tab["C2"] = *msg_2
 	tab["C3"] = *msg_3
@@ -132,7 +132,7 @@ func (ctl *Controller) Message_Interceptor() {
 			stock_C, _ = strconv.Atoi(stock_C_string)
 		}
 
-		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C)
+		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		time.Sleep(5 * time.Second)
 		ctl.Message_Handler(msg_to_handle)
 		mutex.Unlock()
@@ -155,7 +155,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		}
 		ctl.horloge_vec[num-1] += 1
 
-		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0)
+		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [requête] hi ) à tous les autres sites
 		for i := 1; i <= 3; i++ {
@@ -177,7 +177,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		stock_A := msg.Stock_A
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
-		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C)
+		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
@@ -192,7 +192,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.h1, msg.h2, msg.h3}
-		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {
 			// Handle error
@@ -209,7 +209,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.h1, msg.h2, msg.h3}
-		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {
 			// Handle error
@@ -228,7 +228,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.h1, msg.h2, msg.h3}
-		ctl.horloge_vec = RecalerVec(ctl.horloge_vec, arr)
+		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {
 			// Handle error
@@ -242,22 +242,22 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "demandeSnapshot":
 		if ext_num == ctl.num {
-			if color == 1 {
+			if ctl.color == 1 {
 
 			}
-			color = 1
+			ctl.color = 1
 			for i := 1; i <= 3; i++ {
 				if strconv.Itoa(i) != ctl.num[1:] {
 					utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
 				}
 			}
 		} else {
-			if color == 0 {
+			if ctl.color == 0 {
 				//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
 
 				utils.Msg_send(utils.Msg_format("receiver", "C"+ext_num+utils.Msg_format("type", "finSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge", strconv.Itoa(ctl.horloge))))
 
-				color = 1
+				ctl.color = 1
 			}
 		}
 		//ctl.horloge += 1
@@ -280,7 +280,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		stock_A := msg.Stock_A
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
-		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C)
+		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {

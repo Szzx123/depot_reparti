@@ -45,7 +45,7 @@ func (tm TypeMessage) String() string {
 	}
 }
 
-func New_MutexMessage(site string, h int, typ TypeMessage, cargo string, quantity int, operation string, stock_A int, stock_B int, stock_C int) *MutexMessage {
+func New_MutexMessage(site string, h int, typ TypeMessage, cargo string, quantity int, operation string, stock_A int, stock_B int, stock_C int, h1 int, h2 int, h3 int) *MutexMessage {
 	return &MutexMessage{
 		site:        site,
 		horloge:     h,
@@ -56,6 +56,9 @@ func New_MutexMessage(site string, h int, typ TypeMessage, cargo string, quantit
 		Stock_A:     stock_A,
 		Stock_B:     stock_B,
 		Stock_C:     stock_C,
+		h1:          h1,
+		h2:          h2,
+		h3:          h3,
 	}
 }
 
