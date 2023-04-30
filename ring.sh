@@ -18,6 +18,8 @@ nettoyer () {
 
 # Appel de la fonction nettoyer à la réception d'un signal
 
+go build ./app.go
+go build ./ctl.go
 
 mkfifo /tmp/in_A1 /tmp/out_A1
 mkfifo /tmp/in_C1 /tmp/out_C1
