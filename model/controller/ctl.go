@@ -23,6 +23,7 @@ type Controller struct {
 	ok          bool
 	horloge_vec []int
 	color       int
+	snapshot    string
 }
 
 func New_Controller(num string) *Controller {
@@ -157,6 +158,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
+
+		ctl.snapshot = ctl.snapshot + "opération : " + msg.Cargo + " " + strconv.Itoa(msg.Quantity) + " " + msg.Operation
+
 		// envoyer( [requête] hi ) à tous les autres sites
 		for i := 1; i <= 3; i++ {
 			if strconv.Itoa(i) != ctl.num[1:] {
@@ -179,6 +183,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		stock_C := msg.Stock_C
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
+
+		ctl.snapshot = ctl.snapshot + ", horloge vectorielle [" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
 			if strconv.Itoa(i) != ctl.num[1:] {
@@ -255,7 +262,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			if ctl.color == 0 {
 				//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
 
-				utils.Msg_send(utils.Msg_format("receiver", "C"+ext_num+utils.Msg_format("type", "finSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge", strconv.Itoa(ctl.horloge))))
+				horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+
+				utils.Msg_send(utils.Msg_format("receiver", "C"+ext_num+utils.Msg_format("type", "finSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
 
 				ctl.color = 1
 			}
@@ -271,6 +280,10 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		//}
 		//l.Println(ctl.num, ": ", ctl.tab) // test
 	case "finSnapshot":
+		if ctl.color == 1 {
+			color = 0
+		}
+
 		if ext_num == ctl.num {
 
 		} else {
