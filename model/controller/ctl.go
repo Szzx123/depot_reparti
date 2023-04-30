@@ -191,7 +191,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 
 		// Mettre à jour l'horloge vectorielle
-		arr := []int{msg.h1, msg.h2, msg.h3}
+		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {
@@ -208,7 +208,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 
 		// Mettre à jour l'horloge vectorielle
-		arr := []int{msg.h1, msg.h2, msg.h3}
+		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {
@@ -227,7 +227,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
 
 		// Mettre à jour l'horloge vectorielle
-		arr := []int{msg.h1, msg.h2, msg.h3}
+		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
 		num, err := strconv.Atoi(ctl.num[1:])
 		if err != nil {

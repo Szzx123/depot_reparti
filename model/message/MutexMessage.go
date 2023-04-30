@@ -10,9 +10,9 @@ type MutexMessage struct {
 	Stock_A     int
 	Stock_B     int
 	Stock_C     int
-	h1          int
-	h2          int
-	h3          int
+	H1          int
+	H2          int
+	H3          int
 }
 
 type TypeMessage int
@@ -56,9 +56,9 @@ func New_MutexMessage(site string, h int, typ TypeMessage, cargo string, quantit
 		Stock_A:     stock_A,
 		Stock_B:     stock_B,
 		Stock_C:     stock_C,
-		h1:          h1,
-		h2:          h2,
-		h3:          h3,
+		H1:          h1,
+		H2:          h2,
+		H3:          h3,
 	}
 }
 
