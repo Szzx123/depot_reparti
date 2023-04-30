@@ -151,10 +151,6 @@
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     snap.addEventListener('submit', (event) => {
       event.preventDefault();  // 阻止表单默认提交行为
-
-      const cargo = document.getElementById('cargo').value;
-      const type = document.getElementById('type').value;
-      const quantity = document.getElementById('quantity').value;
       var site = window.location.port;
       if (site == "8080") {
         site = "A1"
