@@ -188,7 +188,8 @@
 
       socket.addEventListener('message', (event) => {
         console.log('Message received:', event.data);
-        addToSnapshot(event.data);
+        var msg_snapshot = "Snapshot: " + event.data.site + " , horloge: " + event.data.horloge + ", snapshot: " + event.data.snapshot
+        addToSnapshot(msg_snapshot);
       });
 
       socket.addEventListener('close', (event) => {
