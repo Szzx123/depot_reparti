@@ -1,7 +1,6 @@
 package site
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/Szzx123/depot_reparti/service"
 	"github.com/gorilla/websocket"
@@ -159,20 +158,22 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		// Create a Snapshot struct
 		snapshot := message.SnapshotMessage{Site: site.Num, TypeMessage: "generateSnapshot", Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
 
-		// Marshal the Person struct to a JSON byte slice
-		jsonSnapshot, err := json.Marshal(snapshot)
-		if err != nil {
-			log.Fatal("Error marshaling JSON:", err)
-		}
+		//// Marshal the Person struct to a JSON byte slice
+		//jsonSnapshot, err := json.Marshal(snapshot)
+		//if err != nil {
+		//	log.Fatal("Error marshaling JSON:", err)
+		//}
+		//
+		//// Print the JSON string
+		//l.Println(string(jsonSnapshot))
+		//
+		////l.Println(message_snapshot)
+		//err = service.Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		service.Snapshot_Send_Handler(snapshot)
 
-		// Print the JSON string
-		l.Println(string(jsonSnapshot))
-
-		//l.Println(message_snapshot)
-		err = service.Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
 
 }
