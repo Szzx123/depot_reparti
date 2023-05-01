@@ -18,12 +18,14 @@ type MutexMessage struct {
 type TypeMessage int
 
 const (
-	Release   TypeMessage = 0
-	Request   TypeMessage = 1
-	ACK       TypeMessage = 2
-	demandeSC TypeMessage = 3
-	startSC   TypeMessage = 4
-	endSC     TypeMessage = 5
+	Release         TypeMessage = 0
+	Request         TypeMessage = 1
+	ACK             TypeMessage = 2
+	demandeSC       TypeMessage = 3
+	startSC         TypeMessage = 4
+	endSC           TypeMessage = 5
+	demandeSnapshot TypeMessage = 6
+	finSnapshot     TypeMessage = 7
 )
 
 func (tm TypeMessage) String() string {
@@ -40,6 +42,10 @@ func (tm TypeMessage) String() string {
 		return "débutSC"
 	case endSC:
 		return "finSC"
+	case demandeSnapshot:
+		return "demandeSnapshot"
+	case finSnapshot:
+		return "finSnapshot"
 	default:
 		return "unknown"
 	}

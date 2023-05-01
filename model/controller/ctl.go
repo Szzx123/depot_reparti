@@ -93,6 +93,10 @@ func (ctl *Controller) Message_Interceptor() {
 				msg_type = 3
 			case "finSC":
 				msg_type = 5
+			case "demandeSnapshot":
+				msg_type = 6
+			case "finSnapshot":
+				msg_type = 7
 			default:
 				l.Println("Unknown Message Type")
 				mutex.Unlock()
@@ -134,7 +138,7 @@ func (ctl *Controller) Message_Interceptor() {
 		}
 
 		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 		ctl.Message_Handler(msg_to_handle)
 		mutex.Unlock()
 	}
