@@ -188,7 +188,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
-		ctl.snapshot = ctl.snapshot + ", horloge vectorielle [" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+		ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+		l.Println(ctl.snapshot) // test
 
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
