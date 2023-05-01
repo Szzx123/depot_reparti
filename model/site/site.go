@@ -144,13 +144,13 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		// Send message to the WebSocket server
 		//message := []byte("Hello, WebSocket server!")
 
-		horloge_snapshot := msg.HorlogeSnapshot
+		//horloge_snapshot := msg.HorlogeSnapshot
 		snaphot := msg.Snapshot
 
-		message_snapshot := []byte(horloge_snapshot + snaphot)
+		//message_snapshot := horloge_snapshot + snaphot
 
-		l.Println(message_snapshot)
-		err = conn.WriteMessage(websocket.TextMessage, message_snapshot)
+		//l.Println(message_snapshot)
+		err = conn.WriteMessage(websocket.TextMessage, []byte(snaphot))
 		if err != nil {
 			log.Fatal(err)
 		}
