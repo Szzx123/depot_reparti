@@ -149,6 +149,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 
 		message_snapshot := []byte(horloge_snapshot + snaphot)
 
+		l.Println(message_snapshot)
 		err = conn.WriteMessage(websocket.TextMessage, message_snapshot)
 		if err != nil {
 			log.Fatal(err)
