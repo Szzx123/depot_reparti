@@ -1,6 +1,7 @@
 package site
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
@@ -145,15 +146,32 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		//message := []byte("Hello, WebSocket server!")
 
 		//horloge_snapshot := msg.HorlogeSnapshot
-		snaphot := msg.Snapshot
+		//snapshot := msg.Snapshot
 
 		//message_snapshot := horloge_snapshot + snaphot
 
+		// Create a Snapshot struct
+		snapshot := Snapshot{Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
+
+		// Marshal the Person struct to a JSON byte slice
+		jsonSnapshot, err := json.Marshal(snapshot)
+		if err != nil {
+			log.Fatal("Error marshaling JSON:", err)
+		}
+
+		l.Println(jsonSnapshot)
+
 		//l.Println(message_snapshot)
-		err = conn.WriteMessage(websocket.TextMessage, []byte(snaphot))
+		err = conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
+}
+
+// Create a struct to hold the data
+type Snapshot struct {
+	Horloge  string `json:"horloge"`
+	Snapshot string `json:"snapshot"`
 }
