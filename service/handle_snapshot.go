@@ -24,10 +24,7 @@ func Snapshot_Handler(c *gin.Context) {
 		log.Printf("升级 WebSocket 失败: %s", err)
 		return
 	}
-	//defer Conn_Snap.Close()
 	go Snapshot_Receive_Handler(c)
-	//go Snapshot_Send_Handler()
-
 }
 
 func Snapshot_Receive_Handler(c *gin.Context) {
@@ -73,7 +70,6 @@ func Snapshot_Send_Handler(msgSnapshot message.SnapshotMessage) {
 	// Print the JSON string
 	log.Println(string(jsonSnapshot))
 
-	//l.Println(message_snapshot)
 	if ConnSnap != nil {
 		err = ConnSnap.WriteMessage(websocket.TextMessage, jsonSnapshot)
 		if err != nil {

@@ -84,6 +84,15 @@
 <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
+    let site = window.location.port;
+    if (site === "8080") {
+        site = "A1"
+    } else if (site === "8081") {
+        site = "A2"
+    } else if (site === "8082") {
+        site = "A3"
+    }
+
     function addToLog(message) {
         var logs = document.getElementById("logs");
         var d = document.createElement("div");
@@ -128,14 +137,7 @@
         const cargo = document.getElementById('cargo').value;
         const type = document.getElementById('type').value;
         const quantity = document.getElementById('quantity').value;
-        var site = window.location.port;
-        if (site == "8080") {
-            site = "A1"
-        } else if (site == "8081") {
-            site = "A2"
-        } else if (site == "8082") {
-            site = "A3"
-        }
+
         const data = {
             site: site,
             type_message: "operateCargo",
@@ -176,14 +178,6 @@
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     snap.addEventListener("click", (event) => {
         event.preventDefault();  // 阻止表单默认提交行为
-        var site = window.location.port;
-        if (site == "8080") {
-            site = "A1"
-        } else if (site == "8081") {
-            site = "A2"
-        } else if (site == "8082") {
-            site = "A3"
-        }
         const data = {
             site: site,
             type_message: "demandeSnapshot",

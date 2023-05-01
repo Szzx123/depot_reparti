@@ -26,10 +26,7 @@ func Cargo_Handler(c *gin.Context) {
 		log.Printf("升级 WebSocket 失败: %s", err)
 		return
 	}
-	//defer Conn_Snap.Close()
 	go Cargo_Receive_Handler(c)
-	//go Snapshot_Send_Handler()
-
 }
 
 func Cargo_Receive_Handler(c *gin.Context) {
@@ -79,11 +76,12 @@ func Cargo_Send_Handler(msgCargo message.CargoMessage) {
 	// Print the JSON string
 	log.Println(string(jsonCargo))
 
-	//l.Println(message_snapshot)
 	if ConnCargo != nil {
 		err = ConnCargo.WriteMessage(websocket.TextMessage, jsonCargo)
 		if err != nil {
 			log.Fatal(err)
 		}
+	} else {
+		log.Println("connection failed")
 	}
 }
