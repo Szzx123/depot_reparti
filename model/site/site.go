@@ -159,7 +159,8 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 			log.Fatal("Error marshaling JSON:", err)
 		}
 
-		l.Println(jsonSnapshot)
+		// Print the JSON string
+		l.Println(string(jsonSnapshot))
 
 		//l.Println(message_snapshot)
 		err = conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
