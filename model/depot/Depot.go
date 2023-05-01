@@ -32,3 +32,7 @@ func (d *Depot) Cargo_OUT(cargo string, num int) {
 func (d *Depot) Set_Cargo(cargo string, num int) {
 	d.StoreHouse[cargo] = num
 }
+
+func (d *Depot) Get_Cargo(cargo string) int {
+	return d.StoreHouse[cargo]
+}

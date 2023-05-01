@@ -120,6 +120,8 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		// l.Println(global.Depot) // test
 		// 发送finSC给ctl
 		utils.Msg_send(utils.Msg_format("receiver", "C"+site.Num[1:]) + utils.Msg_format("type", "finSC") + utils.Msg_format("sender", site.Num) + utils.Msg_format("A", strconv.Itoa(global.Depot.StoreHouse["A"])) + utils.Msg_format("B", strconv.Itoa(global.Depot.StoreHouse["B"])) + utils.Msg_format("C", strconv.Itoa(global.Depot.StoreHouse["C"])))
+		msgCargo := message.CargoMessage{Site: site.Num, TypeMessage: "updateCargo", Stock_A: global.Depot.Get_Cargo("A"), Stock_B: global.Depot.Get_Cargo("B"), Stock_C: global.Depot.Get_Cargo("C")}
+		service.Cargo_Send_Handler(msgCargo)
 	case "updateSC":
 		// 更新所有库存信息
 		global.Depot.Set_Cargo("A", msg.Stock_A)
