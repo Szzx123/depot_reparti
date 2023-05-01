@@ -267,7 +267,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 			// generate snapshot
 			horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
-			utils.Msg_send(utils.Msg_format("receiver", "A"+ext_num+utils.Msg_format("type", "generateSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
+			utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]+utils.Msg_format("type", "generateSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
 
 			// changer la couleur du site à rouge
 			ctl.color = 1
