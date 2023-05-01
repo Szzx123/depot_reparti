@@ -61,10 +61,10 @@ func Cargo_Receive_Handler(c *gin.Context) {
 
 			utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSC") + utils.Msg_format("cargo", msg.Cargo) + utils.Msg_format("operation", msg.Type) + utils.Msg_format("quantity", msg.Quantity))
 			// 发送消息
-			if err := ConnCargo.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
-				log.Printf("发送消息失败: %s", err)
-				break
-			}
+			//if err := ConnCargo.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
+			//	log.Printf("发送消息失败: %s", err)
+			//	break
+			//}
 		}
 	}
 }
