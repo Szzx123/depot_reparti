@@ -190,6 +190,7 @@
         console.log('Message received:', event.data);
         var msg_snapshot = "Snapshot: " + event.data["site"] + " , horloge: " + event.data["horloge"] + ", snapshot: " + event.data["snapshot"]
         addToSnapshot(msg_snapshot);
+        addToSnapshot(event.data);
       });
 
       socket.addEventListener('close', (event) => {
