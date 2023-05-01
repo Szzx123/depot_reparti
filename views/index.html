@@ -103,6 +103,9 @@
 
     const form = document.getElementById('form');
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+    // 通过 WebSocket 发送表单数据到后端
+    const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+
     form.addEventListener('submit', (event) => {
         event.preventDefault();  // 阻止表单默认提交行为
 
@@ -125,8 +128,8 @@
             quantity: quantity
         };
         console.log(data)
-        // 通过 WebSocket 发送表单数据到后端
-        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+        // // 通过 WebSocket 发送表单数据到后端
+        // const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
 
         socket.addEventListener('open', (event) => {
             console.log('WebSocket Connection has been established');
@@ -134,21 +137,21 @@
             socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
             addToLog("Envoi: " + msg_to_send);
         });
+    });
 
-        socket.addEventListener('message', (event) => {
-            console.log('Message received:', event.data);
+    socket.addEventListener('message', (event) => {
+        console.log('Message received:', event.data);
 
-            const message = JSON.parse(event.data);
-            if (message.type_message === "updateCargo") {
-                document.getElementById("cargo-a-stock").innerText = message.stock_A;
-                document.getElementById("cargo-b-stock").innerText = message.stock_B;
-                document.getElementById("cargo-c-stock").innerText = message.stock_C;
-            }
-        });
+        const message = JSON.parse(event.data);
+        if (message.type_message === "updateCargo") {
+            document.getElementById("cargo-a-stock").innerText = message.stock_A;
+            document.getElementById("cargo-b-stock").innerText = message.stock_B;
+            document.getElementById("cargo-c-stock").innerText = message.stock_C;
+        }
+    });
 
-        socket.addEventListener('close', (event) => {
-            console.log('WebSocket Connexion has been closed');
-        });
+    socket.addEventListener('close', (event) => {
+        console.log('WebSocket Connexion has been closed');
     });
 
     const snap = document.querySelector("#btn-snap");
