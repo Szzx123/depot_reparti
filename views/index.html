@@ -138,7 +138,7 @@
             console.log('Message received:', event.data);
 
             const message = JSON.parse(event.data);
-            if (message.type_message === "cargo_update") {
+            if (message.type_message === "updateCargo") {
                 document.getElementById("cargo-a-stock").innerText = message.stock_A;
                 document.getElementById("cargo-b-stock").innerText = message.stock_B;
                 document.getElementById("cargo-c-stock").innerText = message.stock_C;
