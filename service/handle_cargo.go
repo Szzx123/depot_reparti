@@ -80,8 +80,8 @@ func Cargo_Send_Handler(msgCargo message.CargoMessage) {
 	log.Println(string(jsonCargo))
 
 	//l.Println(message_snapshot)
-	if ConnSnap != nil {
-		err = ConnSnap.WriteMessage(websocket.TextMessage, jsonCargo)
+	if ConnCargo != nil {
+		err = ConnCargo.WriteMessage(websocket.TextMessage, jsonCargo)
 		if err != nil {
 			log.Fatal(err)
 		}

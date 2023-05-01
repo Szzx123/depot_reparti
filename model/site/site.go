@@ -125,7 +125,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("A", msg.Stock_A)
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
-		l.Println(site.Num, ",", global.Depot)
+		l.Println(site.Num, ":", global.Depot)
 		msgCargo := message.CargoMessage{Site: site.Num, TypeMessage: "updateCargo", Stock_A: msg.Stock_A, Stock_B: msg.Stock_B, Stock_C: msg.Stock_C}
 		service.Cargo_Send_Handler(msgCargo)
 	case "generateSnapshot":
