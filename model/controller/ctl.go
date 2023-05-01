@@ -248,61 +248,44 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.Send_StartSC()
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "demandeSnapshot":
-		if ext_num == ctl.num {
-			if ctl.color == 1 {
+		if ctl.color == 0 { // blanc, traiter la demande de snapshot
+			//if ext_num == ctl.num { // initiateur de snapshot
+			//	initiateur =
+			//}
 
+			num, err := strconv.Atoi(ctl.num[1:])
+			if err != nil {
+				// Handle error
 			}
+
+			// envoyer message de demande de snapshot au site suivant
+			utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(num%3+1)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
+
+			// generate snapshot
+			horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+			utils.Msg_send(utils.Msg_format("receiver", "A"+ext_num+utils.Msg_format("type", "generateSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
+
+			// changer la couleur du site à rouge
 			ctl.color = 1
-			for i := 1; i <= 3; i++ {
-				if strconv.Itoa(i) != ctl.num[1:] {
-					utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
-				}
+		} else { // rouge, envoyer message de fin de snapshot
+
+			num, err := strconv.Atoi(ctl.num[1:])
+			if err != nil {
+				// Handle error
 			}
-		} else {
-			if ctl.color == 0 {
-				//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
-
-				horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
-
-				utils.Msg_send(utils.Msg_format("receiver", "C"+ext_num+utils.Msg_format("type", "finSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
-
-				ctl.color = 1
-			}
+			utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(num%3+1)) + utils.Msg_format("type", "finSnapshot") + utils.Msg_format("sender", ctl.num))
 		}
-		//ctl.horloge += 1
-		//new_msg := message.New_SnapshotMessage(ctl.num, ctl.horloge, 1)
-		//ctl.tab[ctl.num] = *new_msg
-		//// envoyer( [requête] hi ) à tous les autres sites
-		//for i := 1; i <= 3; i++ {
-		//	if strconv.Itoa(i) != ctl.num[1:] {
-		//		utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
-		//	}
-		//}
-		//l.Println(ctl.num, ": ", ctl.tab) // test
 	case "finSnapshot":
+		// change la couleur à blanc
 		if ctl.color == 1 {
-			color = 0
-		}
-
-		if ext_num == ctl.num {
-
-		} else {
-
-		}
-		//ctl.horloge += 1
-		stock_A := msg.Stock_A
-		stock_B := msg.Stock_B
-		stock_C := msg.Stock_C
-		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
-		ctl.tab[ctl.num] = *new_msg
-		// envoyer( [libération] hi ) à tous les autres sites.
-		for i := 1; i <= 3; i++ {
-			if strconv.Itoa(i) != ctl.num[1:] {
-				utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(i)) + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
+			num, err := strconv.Atoi(ctl.num[1:])
+			if err != nil {
+				// Handle error
 			}
+			utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(num%3+1)) + utils.Msg_format("type", "finSnapshot") + utils.Msg_format("sender", ctl.num))
+
+			ctl.color = 0
 		}
-		// utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
-		l.Println(ctl.num, ": ", ctl.tab) // test
 	}
 }
 

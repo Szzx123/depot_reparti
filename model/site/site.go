@@ -2,6 +2,7 @@ package site
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"os"
 	"strconv"
@@ -35,7 +36,7 @@ func (site *Site) Message_Interceptor() {
 	l := log.New(os.Stderr, "", 0)
 	l.Println("Start of message_interceptor ", site.Num)
 	for {
-		var rcv_msg, cargo, msg_type, operation, receiver, sender string
+		var rcv_msg, cargo, msg_type, operation, receiver, sender, horloge_snapshot, snapshot string
 		var quantity, stock_A, stock_B, stock_C int
 		fmt.Scanln(&rcv_msg)
 		mutex.Lock() // treat champ sender
@@ -57,6 +58,7 @@ func (site *Site) Message_Interceptor() {
 		switch msg_type {
 		case "débutSC":
 		case "updateSC":
+		case "generateSnapshot":
 		default:
 			l.Println("Unknown message type")
 			mutex.Unlock()
@@ -90,7 +92,11 @@ func (site *Site) Message_Interceptor() {
 			stock_C, _ = strconv.Atoi(stock_C_string)
 		}
 
-		msg_to_handle := message.New_SiteMessage(msg_type, cargo, operation, quantity, stock_A, stock_B, stock_C)
+		horloge_snapshot = utils.Findval(rcv_msg, "horloge_snapshot")
+
+		snapshot = utils.Findval(rcv_msg, "snapshot")
+
+		msg_to_handle := message.New_SiteMessage(msg_type, cargo, operation, quantity, stock_A, stock_B, stock_C, horloge_snapshot, snapshot)
 		site.Message_Handler(*msg_to_handle)
 		mutex.Unlock()
 	}
@@ -115,8 +121,38 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
 		l.Println(site.Num, " ", global.Depot)
-	case "sendSnapshot":
+	case "generateSnapshot":
+		// Define WebSocket dialer with default options
+		dialer := websocket.DefaultDialer
 
+		var port string
+		if site.Num[1:] == "1" {
+			port = "8080"
+		} else if site.Num[1:] == "2" {
+			port = "8081"
+		} else if site.Num[1:] == "3" {
+			port = "8082"
+		}
+
+		// Connect to the WebSocket server
+		conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+
+		// Send message to the WebSocket server
+		//message := []byte("Hello, WebSocket server!")
+
+		horloge_snapshot := msg.HorlogeSnapshot
+		snaphot := msg.Snapshot
+
+		message_snapshot := []byte(horloge_snapshot + snaphot)
+
+		err = conn.WriteMessage(websocket.TextMessage, message_snapshot)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 }
