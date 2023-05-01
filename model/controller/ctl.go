@@ -163,7 +163,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
-		ctl.snapshot = ctl.snapshot + "opération : " + msg.Cargo + "," + strconv.Itoa(msg.Quantity) + "," + msg.Operation
+		ctl.snapshot = ctl.snapshot + "operation:" + msg.Cargo + "," + strconv.Itoa(msg.Quantity) + "," + msg.Operation
 
 		// envoyer( [requête] hi ) à tous les autres sites
 		for i := 1; i <= 3; i++ {
