@@ -89,8 +89,10 @@ func Snapshot_Send_Handler(snapshot message.SnapshotMessage) {
 	log.Println(string(jsonSnapshot))
 
 	//l.Println(message_snapshot)
-	err = Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
-	if err != nil {
-		log.Fatal(err)
+	if Conn != nil {
+		err = Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
