@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WareHouse System</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <title>WareHouse System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">WareHouse</a>
-  </nav>
+</nav>
 
-  <div class="container mt-5">
+<div class="container mt-5">
     <!-- <form>
       <p>
          <button id="connecter" class="btn btn-primary">Connecter</button>
@@ -24,83 +24,84 @@
         <div class="form-group">
             <label for="cargo">Cargo:</label>
             <select id="cargo" name="cargo" class="form-control">
-              <option value="">Select Cargo</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
+                <option value="">Select Cargo</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
             </select>
         </div>
 
-      <div class="form-group">
-        <label for="type">In/Out:</label>
-        <select id="type" name="type" class="form-control">
-          <option value="in">In</option>
-          <option value="out">Out</option>
-        </select>
-      </div>
+        <div class="form-group">
+            <label for="type">In/Out:</label>
+            <select id="type" name="type" class="form-control">
+                <option value="in">In</option>
+                <option value="out">Out</option>
+            </select>
+        </div>
 
-      <div class="form-group">
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" name="quantity" class="form-control">
-      </div>
+        <div class="form-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" class="form-control">
+        </div>
 
-      <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
 
-      <br>
-      <br>
+        <br>
+        <br>
 
-      <button id="btn-snap" class="btn btn-warning">Snapshot</button>
+        <button id="btn-snap" class="btn btn-warning">Snapshot</button>
 
     </form>
-  </div>
-  <hr>
-  <b> Logs </b>
-  <div id="logs" style="max-height: 40vh;overflow-y: scroll;"></div>
+</div>
+<hr>
+<b> Logs </b>
+<div id="logs" style="max-height: 40vh;overflow-y: scroll;"></div>
 
-  <hr>
-  <b> Snapshots </b>
-  <div id="snapshots" style="max-height: 40vh;overflow-y: scroll;"></div>
+<hr>
+<b> Snapshots </b>
+<div id="snapshots" style="max-height: 40vh;overflow-y: scroll;"></div>
 
-  <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
 
-  <script>
+<script>
     function addToLog(message) {
-     var logs = document.getElementById("logs");
-     var d = document.createElement("div");
-     d.textContent = message;
-     logs.appendChild(d);
-     logs.scroll(0, logs.scrollHeight);
+        var logs = document.getElementById("logs");
+        var d = document.createElement("div");
+        d.textContent = message;
+        logs.appendChild(d);
+        logs.scroll(0, logs.scrollHeight);
     }
 
     function addToSnapshot(message) {
-      var snapshots = document.getElementById("snapshots");
-      var d = document.createElement("div");
-      d.textContent = message;
-      snapshots.appendChild(d);
-      snapshots.scroll(0, snapshots.scrollHeight);
+        var snapshots = document.getElementById("snapshots");
+        var d = document.createElement("div");
+        d.textContent = message;
+        snapshots.appendChild(d);
+        snapshots.scroll(0, snapshots.scrollHeight);
     }
+
     // var socket
     // document.getElementById("connecter").onclick = function(evt) {
     //   if (socket) {
     //       return false;
     //   }
-              
+
     //   var host = document.getElementById("host").value;
     //   var port = document.getElementById("port").value;
-              
+
     //   addToLog("Tentative de connexion")
     //   addToLog("host = " + host + ", port = " + port)
     //   socket = new WebSocket("ws://"+host+":"+port+"/ws");
-              
+
     //   socket.onopen = function(evt) {
     //     addToLog("Websocket ouverte");
     //   }
-              
+
     //   socket.onclose = function(evt) {
     //     addToLog("Websocket fermée");
     //     ws = null;
     //   }
-              
+
     //   socket.onmessage = function(evt) {
     //     addToLog("Réception: " + evt.data);
     //   }
@@ -120,83 +121,94 @@
     const form = document.getElementById('form');
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     form.addEventListener('submit', (event) => {
-      event.preventDefault();  // 阻止表单默认提交行为
+        event.preventDefault();  // 阻止表单默认提交行为
 
-      const cargo = document.getElementById('cargo').value;
-      const type = document.getElementById('type').value;
-      const quantity = document.getElementById('quantity').value;
-      var site = window.location.port;
-      if (site == "8080") {
-        site = "A1"
-      } else if (site == "8081") {
-        site = "A2"
-      } else if (site == "8082") {
-        site = "A3"
-      }
-      const data = {
-        site: site,
-        cargo: cargo,
-        type: type,
-        quantity: quantity
-      };
-      console.log(data)
-      // 通过 WebSocket 发送表单数据到后端
-      const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+        const cargo = document.getElementById('cargo').value;
+        const type = document.getElementById('type').value;
+        const quantity = document.getElementById('quantity').value;
+        var site = window.location.port;
+        if (site == "8080") {
+            site = "A1"
+        } else if (site == "8081") {
+            site = "A2"
+        } else if (site == "8082") {
+            site = "A3"
+        }
+        const data = {
+            site: site,
+            cargo: cargo,
+            type: type,
+            quantity: quantity
+        };
+        console.log(data)
+        // 通过 WebSocket 发送表单数据到后端
+        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
 
-      socket.addEventListener('open', (event) => {
-        console.log('WebSocket Connection has been established');
-        var msg_to_send = JSON.stringify(data)
-        socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
-        addToLog("Envoi: " + msg_to_send);
-      });
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket Connection has been established');
+            var msg_to_send = JSON.stringify(data)
+            socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
+            addToLog("Envoi: " + msg_to_send);
+        });
 
-      socket.addEventListener('message', (event) => {
-        console.log('Message received:', event.data);
-      });
+        socket.addEventListener('message', (event) => {
+            console.log('Message received:', event.data);
+        });
 
-      socket.addEventListener('close', (event) => {
-        console.log('WebSocket Connexion has been closed');
-      });
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket Connexion has been closed');
+        });
     });
 
     const snap = document.querySelector("#btn-snap");
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     snap.addEventListener("click", (event) => {
-      event.preventDefault();  // 阻止表单默认提交行为
-      var site = window.location.port;
-      if (site == "8080") {
-        site = "A1"
-      } else if (site == "8081") {
-        site = "A2"
-      } else if (site == "8082") {
-        site = "A3"
-      }
-      const data = {
-        site: site,
-        type_message: "demandeSnapshot",
-      };
-      console.log(data)
-      // 通过 WebSocket 发送表单数据到后端
-      const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/snapshot`);
+        event.preventDefault();  // 阻止表单默认提交行为
+        var site = window.location.port;
+        if (site == "8080") {
+            site = "A1"
+        } else if (site == "8081") {
+            site = "A2"
+        } else if (site == "8082") {
+            site = "A3"
+        }
+        const data = {
+            site: site,
+            type_message: "demandeSnapshot",
+        };
+        console.log(data)
+        // 通过 WebSocket 发送表单数据到后端
+        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/snapshot`);
 
-      socket.addEventListener('open', (event) => {
-        console.log('WebSocket Connection has been established');
-        var msg_to_send = JSON.stringify(data)
-        socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
-        addToLog("Snapshot: " + msg_to_send)
-      });
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket Connection has been established');
+            var msg_to_send = JSON.stringify(data)
+            socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
+            addToLog("Snapshot: " + msg_to_send)
+        });
 
-      socket.addEventListener('message', (event) => {
-        console.log('Message received:', event.data);
-        var msg_snapshot = "Snapshot: " + event.data["site"] + " , horloge: " + event.data["horloge"] + ", snapshot: " + event.data["snapshot"]
-        addToSnapshot(msg_snapshot);
-        addToSnapshot(event.data);
-      });
+        socket.addEventListener('message', (event) => {
+            console.log('Message received:', event.data);
+            // Parse event data to a JSON object
+            const data = JSON.parse(event.data);
 
-      socket.addEventListener('close', (event) => {
-        console.log('WebSocket Connexion has been closed');
-      });
+            // Check the type_message field
+            if (data.type_message === 'generateSnapshot') {
+                const msg_snapshot = `Snapshot: ${data.site}, horloge: ${data.horloge}, snapshot: ${data.snapshot}`;
+                addToSnapshot(msg_snapshot);
+                // addToSnapshot(event.data);
+            }
+
+            //
+            // var msg_snapshot = "Snapshot: " + event.data["site"] + " , horloge: " + event.data["horloge"] + ", snapshot: " + event.data["snapshot"]
+            // addToSnapshot(msg_snapshot);
+            // addToSnapshot(event.data);
+        });
+
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket Connexion has been closed');
+        });
     });
-  </script>
+</script>
 </body>
 </html>
