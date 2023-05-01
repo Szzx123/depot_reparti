@@ -58,7 +58,7 @@ func (ctl *Controller) Message_Interceptor() {
 	// l.Printf(string(ctl.num))
 	for {
 		var receiver, sender, cargo, operation string
-		var quantity, stock_A, stock_B, stock_C int
+		var quantity, stock_A, stock_B, stock_C, h1, h2, h3 int
 		var logical_time int
 		var msg_type int
 		fmt.Scanln(&rcv_msg)
@@ -137,7 +137,22 @@ func (ctl *Controller) Message_Interceptor() {
 			stock_C, _ = strconv.Atoi(stock_C_string)
 		}
 
-		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
+		h1_string := utils.Findval(rcv_msg, "H1")
+		if h1_string != "" {
+			h1, _ = strconv.Atoi(h1_string)
+		}
+
+		h2_string := utils.Findval(rcv_msg, "H2")
+		if h2_string != "" {
+			h2, _ = strconv.Atoi(h2_string)
+		}
+
+		h3_string := utils.Findval(rcv_msg, "H3")
+		if h3_string != "" {
+			h3, _ = strconv.Atoi(h3_string)
+		}
+
+		msg_to_handle := message.New_MutexMessage(sender, logical_time, message.TypeMessage(msg_type), cargo, quantity, operation, stock_A, stock_B, stock_C, h1, h2, h3)
 		time.Sleep(1 * time.Second)
 		ctl.Message_Handler(msg_to_handle)
 		mutex.Unlock()
