@@ -151,7 +151,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		//message_snapshot := horloge_snapshot + snaphot
 
 		// Create a Snapshot struct
-		snapshot := Snapshot{Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
+		snapshot := message.SnapshotMessage{TypeMessage: "generateSnapshot", Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
 
 		// Marshal the Person struct to a JSON byte slice
 		jsonSnapshot, err := json.Marshal(snapshot)

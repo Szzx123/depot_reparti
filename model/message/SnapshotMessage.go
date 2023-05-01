@@ -1,10 +1,17 @@
 package message
 
+//type SnapshotMessage struct {
+//	//message string
+//	site    string
+//	horloge int
+//	color   Color
+//}
+
 type SnapshotMessage struct {
-	//message string
-	site    string
-	horloge int
-	color   Color
+	Site        string `json:"site"`
+	TypeMessage string `json:"type_message"`
+	Horloge     string `json:"horloge"`
+	Snapshot    string `json:"snapshot"`
 }
 
 type Color int
@@ -25,18 +32,19 @@ func (c Color) String() string {
 	}
 }
 
-func New_SnapshotMessage(site string, h int, color Color) *SnapshotMessage {
-	return &SnapshotMessage{
-		site:    site,
-		horloge: h,
-		color:   color,
-	}
-}
-
-func (sm SnapshotMessage) Get_Color() Color {
-	return sm.color
-}
-
-func (sm SnapshotMessage) Get_Site() string {
-	return sm.site
-}
+//
+//func New_SnapshotMessage(site string, h int, color Color) *SnapshotMessage {
+//	return &SnapshotMessage{
+//		site:    site,
+//		horloge: h,
+//		color:   color,
+//	}
+//}
+//
+//func (sm SnapshotMessage) Get_Color() Color {
+//	return sm.color
+//}
+//
+//func (sm SnapshotMessage) Get_Site() string {
+//	return sm.site
+//}
