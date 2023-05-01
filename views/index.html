@@ -12,46 +12,66 @@
 </nav>
 
 <div class="container mt-5">
-    <!-- <form>
-      <p>
-         <button id="connecter" class="btn btn-primary">Connecter</button>
-         <button id="fermer" class="btn btn-primary">Fermer</button>
-         host : <input id="host" type="text" size="10" value="localhost">
-         port : <input id="port" type="text" maxlength="5" size="5" value="8080">
-      </p>
-    </form> -->
-    <form id="form">
-        <div class="form-group">
-            <label for="cargo">Cargo:</label>
-            <select id="cargo" name="cargo" class="form-control">
-                <option value="">Select Cargo</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-            </select>
+    <div class="row">
+        <div class="col-md-6">
+            <form id="form">
+                <div class="form-group">
+                    <label for="cargo">Cargo:</label>
+                    <select id="cargo" name="cargo" class="form-control">
+                        <option value="">Select Cargo</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">In/Out:</label>
+                    <select id="type" name="type" class="form-control">
+                        <option value="in">In</option>
+                        <option value="out">Out</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+
+                <br>
+                <br>
+
+                <button id="btn-snap" class="btn btn-warning">Snapshot</button>
+
+            </form>
         </div>
-
-        <div class="form-group">
-            <label for="type">In/Out:</label>
-            <select id="type" name="type" class="form-control">
-                <option value="in">In</option>
-                <option value="out">Out</option>
-            </select>
+        <div class="col-md-6">
+            <table id="cargo-table" class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>Cargo Type</th>
+                    <th>Stock Quantity</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>A</td>
+                    <td id="cargo-a-stock"></td>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td id="cargo-b-stock"></td>
+                </tr>
+                <tr>
+                    <td>C</td>
+                    <td id="cargo-c-stock"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-
-        <div class="form-group">
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" name="quantity" class="form-control">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-
-        <br>
-        <br>
-
-        <button id="btn-snap" class="btn btn-warning">Snapshot</button>
-
-    </form>
+    </div>
 </div>
 <hr>
 <b> Logs </b>
@@ -80,44 +100,7 @@
         snapshots.scroll(0, snapshots.scrollHeight);
     }
 
-    // var socket
-    // document.getElementById("connecter").onclick = function(evt) {
-    //   if (socket) {
-    //       return false;
-    //   }
 
-    //   var host = document.getElementById("host").value;
-    //   var port = document.getElementById("port").value;
-
-    //   addToLog("Tentative de connexion")
-    //   addToLog("host = " + host + ", port = " + port)
-    //   socket = new WebSocket("ws://"+host+":"+port+"/ws");
-
-    //   socket.onopen = function(evt) {
-    //     addToLog("Websocket ouverte");
-    //   }
-
-    //   socket.onclose = function(evt) {
-    //     addToLog("Websocket fermée");
-    //     ws = null;
-    //   }
-
-    //   socket.onmessage = function(evt) {
-    //     addToLog("Réception: " + evt.data);
-    //   }
-
-    //   socket.onerror = function(evt) {
-    //     addToLog("Erreur: " + evt.data);
-    //   }
-    //   return false;
-    // }
-    // document.getElementById("fermer").onclick = function(evt) {
-    //   if (!socket) {
-    //     return false;
-    //   }
-    //   socket.close();
-    //   return false;
-    // }
     const form = document.getElementById('form');
     // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
     form.addEventListener('submit', (event) => {
@@ -153,6 +136,13 @@
 
         socket.addEventListener('message', (event) => {
             console.log('Message received:', event.data);
+
+            const message = JSON.parse(event.data);
+            if (message.type_message === "cargo_update") {
+                document.getElementById("cargo-a-stock").innerText = message.stock_A;
+                document.getElementById("cargo-b-stock").innerText = message.stock_B;
+                document.getElementById("cargo-c-stock").innerText = message.stock_C;
+            }
         });
 
         socket.addEventListener('close', (event) => {

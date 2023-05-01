@@ -126,60 +126,10 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
 		l.Println(site.Num, ",", global.Depot)
+		msgCargo := message.CargoMessage{Site: site.Num, TypeMessage: "updateCargo", Stock_A: msg.Stock_A, Stock_B: msg.Stock_B, Stock_C: msg.Stock_C}
+		service.Cargo_Send_Handler(msgCargo)
 	case "generateSnapshot":
-		// Define WebSocket dialer with default options
-		//dialer := websocket.DefaultDialer
-
-		//var port string
-		//if site.Num[1:] == "1" {
-		//	port = "8080"
-		//} else if site.Num[1:] == "2" {
-		//	port = "8081"
-		//} else if site.Num[1:] == "3" {
-		//	port = "8082"
-		//}
-
-		// Connect to the WebSocket server
-		//conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
-		//conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//defer conn.Close()
-
-		// Send message to the WebSocket server
-		//message := []byte("Hello, WebSocket server!")
-
-		//horloge_snapshot := msg.HorlogeSnapshot
-		//snapshot := msg.Snapshot
-
-		//message_snapshot := horloge_snapshot + snaphot
-
-		// Create a Snapshot struct
-		snapshot := message.SnapshotMessage{Site: site.Num, TypeMessage: "generateSnapshot", Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
-
-		//// Marshal the Person struct to a JSON byte slice
-		//jsonSnapshot, err := json.Marshal(snapshot)
-		//if err != nil {
-		//	log.Fatal("Error marshaling JSON:", err)
-		//}
-		//
-		//// Print the JSON string
-		//l.Println(string(jsonSnapshot))
-		//
-		////l.Println(message_snapshot)
-		//err = service.Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		service.Snapshot_Send_Handler(snapshot)
-
+		msgSnapshot := message.SnapshotMessage{Site: site.Num, TypeMessage: "generateSnapshot", Horloge: msg.HorlogeSnapshot, Snapshot: msg.Snapshot}
+		service.Snapshot_Send_Handler(msgSnapshot)
 	}
-
-}
-
-// Create a struct to hold the data
-type Snapshot struct {
-	Horloge  string `json:"horloge"`
-	Snapshot string `json:"snapshot"`
 }

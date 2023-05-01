@@ -17,16 +17,26 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+var ConnCargo *websocket.Conn
+
 func Cargo_Handler(c *gin.Context) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	var err error
+	ConnCargo, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Printf("升级 WebSocket 失败: %s", err)
 		return
 	}
-	defer conn.Close()
+	//defer Conn_Snap.Close()
+	go Cargo_Receive_Handler(c)
+	//go Snapshot_Send_Handler()
+
+}
+
+func Cargo_Receive_Handler(c *gin.Context) {
+	defer ConnCargo.Close()
 	for {
 		// 读取消息
-		_, message_json, err := conn.ReadMessage()
+		_, message_json, err := ConnCargo.ReadMessage()
 		if err != nil {
 			log.Printf("读取消息失败: %s", err)
 			break
@@ -50,9 +60,28 @@ func Cargo_Handler(c *gin.Context) {
 
 		utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSC") + utils.Msg_format("cargo", msg.Cargo) + utils.Msg_format("operation", msg.Type) + utils.Msg_format("quantity", msg.Quantity))
 		// 发送消息
-		if err := conn.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
+		if err := ConnCargo.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
 			log.Printf("发送消息失败: %s", err)
 			break
+		}
+	}
+}
+
+func Cargo_Send_Handler(msgCargo message.CargoMessage) {
+	// Marshal the Person struct to a JSON byte slice
+	jsonCargo, err := json.Marshal(msgCargo)
+	if err != nil {
+		log.Fatal("Error marshaling JSON:", err)
+	}
+
+	// Print the JSON string
+	log.Println(string(jsonCargo))
+
+	//l.Println(message_snapshot)
+	if ConnSnap != nil {
+		err = ConnSnap.WriteMessage(websocket.TextMessage, jsonCargo)
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 }
