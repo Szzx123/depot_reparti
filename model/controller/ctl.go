@@ -163,7 +163,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
-		ctl.snapshot = ctl.snapshot + "opération : " + msg.Cargo + " " + strconv.Itoa(msg.Quantity) + " " + msg.Operation
+		ctl.snapshot = ctl.snapshot + "opération : " + msg.Cargo + "," + strconv.Itoa(msg.Quantity) + "," + msg.Operation
 
 		// envoyer( [requête] hi ) à tous les autres sites
 		for i := 1; i <= 3; i++ {
@@ -188,7 +188,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
-		ctl.snapshot = ctl.snapshot + ", horloge vectorielle [" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+		ctl.snapshot = ctl.snapshot + ", horloge vectorielle [" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
@@ -266,7 +266,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(num%3+1)) + utils.Msg_format("type", "demandeSnapshot") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
 
 			// generate snapshot
-			horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + " " + strconv.Itoa(ctl.horloge_vec[1]) + " " + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+			horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 			l.Println(horloge_snapshot)
 			l.Println(ctl.snapshot)
 			utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]+utils.Msg_format("type", "generateSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))

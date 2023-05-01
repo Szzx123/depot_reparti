@@ -120,7 +120,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("A", msg.Stock_A)
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
-		l.Println(site.Num, " ", global.Depot)
+		l.Println(site.Num, ",", global.Depot)
 	case "generateSnapshot":
 		// Define WebSocket dialer with default options
 		dialer := websocket.DefaultDialer
