@@ -228,7 +228,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 
 		ctl.tab[ext_num] = *msg
 		// envoyer( [accusé] hi ) à Sj
-		utils.Msg_send(utils.Msg_format("receiver", ext_num) + utils.Msg_format("type", "ack") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)))
+		utils.Msg_send(utils.Msg_format("receiver", ext_num) + utils.Msg_format("type", "ack") +
+			utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) +
+			utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[0])) + utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[1])) + utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[2])))
 		ctl.Send_StartSC()
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "release":
@@ -247,7 +249,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		stock_B := msg.Stock_B
 		stock_C := msg.Stock_C
 		ctl.tab[ext_num] = *msg
-		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "updateSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
+		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "updateSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)) +
+			utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[0])) + utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[1])) + utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[2])))
 		ctl.Send_StartSC()
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "ack":
