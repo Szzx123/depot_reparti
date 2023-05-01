@@ -49,12 +49,12 @@ func Snapshot_Handler(c *gin.Context) {
 			}
 		} else { // demande Snapshot
 			utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSnapshot"))
+			// 发送消息
+			if err := conn.WriteMessage(websocket.TextMessage, []byte("demandeSnapshot已收到")); err != nil {
+				log.Printf("发送消息失败: %s", err)
+				break
+			}
 		}
 
-		// 发送消息
-		if err := conn.WriteMessage(websocket.TextMessage, []byte("消息已收到")); err != nil {
-			log.Printf("发送消息失败: %s", err)
-			break
-		}
 	}
 }
