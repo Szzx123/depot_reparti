@@ -15,16 +15,20 @@ import (
 //	},
 //}
 
+var Conn *websocket.Conn
+
 func Snapshot_Handler(c *gin.Context) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	var err error
+	Conn, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Printf("升级 WebSocket 失败: %s", err)
 		return
 	}
-	defer conn.Close()
+	defer Conn.Close()
 	for {
 		// 读取消息
-		_, message_json, err := conn.ReadMessage()
+		//_, message_json, err := conn.ReadMessage()
+		_, message_json, err := Conn.ReadMessage()
 		if err != nil {
 			log.Printf("读取消息失败: %s", err)
 			break
@@ -43,14 +47,14 @@ func Snapshot_Handler(c *gin.Context) {
 
 		if msg.TypeMessage == "generateSnapshot" {
 			// 发送消息
-			err = conn.WriteMessage(websocket.TextMessage, message_json)
+			err = Conn.WriteMessage(websocket.TextMessage, message_json)
 			if err != nil {
 				log.Fatal(err)
 			}
 		} else { // demande Snapshot
 			utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSnapshot"))
 			// 发送消息
-			if err := conn.WriteMessage(websocket.TextMessage, []byte("demandeSnapshot已收到")); err != nil {
+			if err := Conn.WriteMessage(websocket.TextMessage, []byte("demandeSnapshot已收到")); err != nil {
 				log.Printf("发送消息失败: %s", err)
 				break
 			}

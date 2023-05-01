@@ -3,6 +3,7 @@ package site
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Szzx123/depot_reparti/service"
 	"github.com/gorilla/websocket"
 	"log"
 	"os"
@@ -21,6 +22,10 @@ var (
 type Site struct {
 	Num string
 }
+
+var (
+	websocketConn *websocket.Conn
+)
 
 func New_Site(num string) *Site {
 	return &Site{
@@ -124,23 +129,24 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		l.Println(site.Num, ",", global.Depot)
 	case "generateSnapshot":
 		// Define WebSocket dialer with default options
-		dialer := websocket.DefaultDialer
+		//dialer := websocket.DefaultDialer
 
-		var port string
-		if site.Num[1:] == "1" {
-			port = "8080"
-		} else if site.Num[1:] == "2" {
-			port = "8081"
-		} else if site.Num[1:] == "3" {
-			port = "8082"
-		}
+		//var port string
+		//if site.Num[1:] == "1" {
+		//	port = "8080"
+		//} else if site.Num[1:] == "2" {
+		//	port = "8081"
+		//} else if site.Num[1:] == "3" {
+		//	port = "8082"
+		//}
 
 		// Connect to the WebSocket server
-		conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer conn.Close()
+		//conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
+		//conn, _, err := dialer.Dial("ws://localhost:"+port+"/snapshot", nil)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//defer conn.Close()
 
 		// Send message to the WebSocket server
 		//message := []byte("Hello, WebSocket server!")
@@ -163,7 +169,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		l.Println(string(jsonSnapshot))
 
 		//l.Println(message_snapshot)
-		err = conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
+		err = service.Conn.WriteMessage(websocket.TextMessage, jsonSnapshot)
 		if err != nil {
 			log.Fatal(err)
 		}
