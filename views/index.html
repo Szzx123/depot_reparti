@@ -100,9 +100,28 @@
         snapshots.scroll(0, snapshots.scrollHeight);
     }
 
-
     const form = document.getElementById('form');
-    // var socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+    // 通过 WebSocket 发送表单数据到后端
+    const socketCargo = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+    socketCargo.addEventListener('open', (event) => {
+        console.log('WebSocket Connection has been established');
+    });
+
+    socketCargo.addEventListener('message', (event) => {
+        console.log('Message received:', event.data);
+
+        const message = JSON.parse(event.data);
+        if (message.type_message === "updateCargo") {
+            document.getElementById("cargo-a-stock").innerText = message.stock_A;
+            document.getElementById("cargo-b-stock").innerText = message.stock_B;
+            document.getElementById("cargo-c-stock").innerText = message.stock_C;
+        }
+    });
+
+    socketCargo.addEventListener('close', (event) => {
+        console.log('WebSocket Connexion has been closed');
+    });
+
     form.addEventListener('submit', (event) => {
         event.preventDefault();  // 阻止表单默认提交行为
 
@@ -125,30 +144,32 @@
             quantity: quantity
         };
         console.log(data)
-        // 通过 WebSocket 发送表单数据到后端
-        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/operation`);
+        var msg_to_send = JSON.stringify(data)
+        socketCargo.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
+        addToLog("Envoi: " + msg_to_send);
+    });
 
-        socket.addEventListener('open', (event) => {
-            console.log('WebSocket Connection has been established');
-            var msg_to_send = JSON.stringify(data)
-            socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
-            addToLog("Envoi: " + msg_to_send);
-        });
+    // 通过 WebSocket 发送表单数据到后端
+    const socketSnap = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/snapshot`);
 
-        socket.addEventListener('message', (event) => {
-            console.log('Message received:', event.data);
+    socketSnap.addEventListener('open', (event) => {
+        console.log('WebSocket Connection has been established');
+    });
 
-            const message = JSON.parse(event.data);
-            if (message.type_message === "updateCargo") {
-                document.getElementById("cargo-a-stock").innerText = message.stock_A;
-                document.getElementById("cargo-b-stock").innerText = message.stock_B;
-                document.getElementById("cargo-c-stock").innerText = message.stock_C;
-            }
-        });
+    socketSnap.addEventListener('message', (event) => {
+        console.log('Message received:', event.data);
+        // Parse event data to a JSON object
+        const data = JSON.parse(event.data);
 
-        socket.addEventListener('close', (event) => {
-            console.log('WebSocket Connexion has been closed');
-        });
+        // Check the type_message field
+        if (data.type_message === 'generateSnapshot') {
+            const msg_snapshot = `Snapshot: ${data.site}, horloge: ${data.horloge}, snapshot: ${data.snapshot}`;
+            addToSnapshot(msg_snapshot);
+        }
+    });
+
+    socketSnap.addEventListener('close', (event) => {
+        console.log('WebSocket Connexion has been closed');
     });
 
     const snap = document.querySelector("#btn-snap");
@@ -168,37 +189,9 @@
             type_message: "demandeSnapshot",
         };
         console.log(data)
-        // 通过 WebSocket 发送表单数据到后端
-        const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}/snapshot`);
-
-        socket.addEventListener('open', (event) => {
-            console.log('WebSocket Connection has been established');
-            var msg_to_send = JSON.stringify(data)
-            socket.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
-            addToLog("Snapshot: " + msg_to_send)
-        });
-
-        socket.addEventListener('message', (event) => {
-            console.log('Message received:', event.data);
-            // Parse event data to a JSON object
-            const data = JSON.parse(event.data);
-
-            // Check the type_message field
-            if (data.type_message === 'generateSnapshot') {
-                const msg_snapshot = `Snapshot: ${data.site}, horloge: ${data.horloge}, snapshot: ${data.snapshot}`;
-                addToSnapshot(msg_snapshot);
-                // addToSnapshot(event.data);
-            }
-
-            //
-            // var msg_snapshot = "Snapshot: " + event.data["site"] + " , horloge: " + event.data["horloge"] + ", snapshot: " + event.data["snapshot"]
-            // addToSnapshot(msg_snapshot);
-            // addToSnapshot(event.data);
-        });
-
-        socket.addEventListener('close', (event) => {
-            console.log('WebSocket Connexion has been closed');
-        });
+        var msg_to_send = JSON.stringify(data)
+        socketSnap.send(msg_to_send);  // 将表单数据转为 JSON 字符串并发送到后端
+        addToLog("Snapshot: " + msg_to_send)
     });
 </script>
 </body>
