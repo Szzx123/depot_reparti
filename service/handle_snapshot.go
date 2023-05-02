@@ -9,12 +9,6 @@ import (
 	"log"
 )
 
-//var upgrader = websocket.Upgrader{
-//	CheckOrigin: func(r *http.Request) bool {
-//		return true
-//	},
-//}
-
 var ConnSnap *websocket.Conn
 
 func Snapshot_Handler(c *gin.Context) {

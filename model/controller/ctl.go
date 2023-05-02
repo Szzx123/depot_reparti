@@ -122,31 +122,37 @@ func (ctl *Controller) Message_Interceptor() {
 			quantity, _ = strconv.Atoi(quantity_string)
 		}
 
+		// treat champ A
 		stock_A_string := utils.Findval(rcv_msg, "A")
 		if stock_A_string != "" {
 			stock_A, _ = strconv.Atoi(stock_A_string)
 		}
 
+		// treat champ B
 		stock_B_string := utils.Findval(rcv_msg, "B")
 		if stock_B_string != "" {
 			stock_B, _ = strconv.Atoi(stock_B_string)
 		}
 
+		// treat champ C
 		stock_C_string := utils.Findval(rcv_msg, "C")
 		if stock_C_string != "" {
 			stock_C, _ = strconv.Atoi(stock_C_string)
 		}
 
+		// treat champ H1
 		h1_string := utils.Findval(rcv_msg, "H1")
 		if h1_string != "" {
 			h1, _ = strconv.Atoi(h1_string)
 		}
 
+		// treat champ H2
 		h2_string := utils.Findval(rcv_msg, "H2")
 		if h2_string != "" {
 			h2, _ = strconv.Atoi(h2_string)
 		}
 
+		// treat champ H3
 		h3_string := utils.Findval(rcv_msg, "H3")
 		if h3_string != "" {
 			h3, _ = strconv.Atoi(h3_string)
@@ -167,6 +173,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 	l := log.New(os.Stderr, "", 0)
 	switch msg.Get_typeMessage() {
 	case "demandeSC":
+		// Mettre à jour l'horloge entière
 		ctl.horloge += 1
 		// Mettre à jour l'horloge vectorielle
 		num, err := strconv.Atoi(ctl.num[1:])
@@ -175,10 +182,11 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		}
 		ctl.horloge_vec[num-1] += 1
 
+		// Mettre à jour l'instantané en ajoutant l'information d'opération
+		ctl.snapshot = ctl.snapshot + "operation:" + msg.Cargo + "," + strconv.Itoa(msg.Quantity) + "," + msg.Operation
+
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 1, msg.Cargo, msg.Quantity, msg.Operation, 0, 0, 0, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
-
-		ctl.snapshot = ctl.snapshot + "operation:" + msg.Cargo + "," + strconv.Itoa(msg.Quantity) + "," + msg.Operation
 
 		// envoyer( [requête] hi ) à tous les autres sites
 		for i := 1; i <= 3; i++ {
@@ -190,6 +198,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.ok = true
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "finSC":
+		// Mettre à jour l'horloge entière
 		ctl.horloge += 1
 		// Mettre à jour l'horloge vectorielle
 		num, err := strconv.Atoi(ctl.num[1:])
@@ -204,6 +213,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
+		// Mettre à jour l'instantané en ajoutant l'information d'horloge vectorielle
 		ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 		l.Println(ctl.snapshot) // test
 
@@ -217,8 +227,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		// utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "request":
+		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
-
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
@@ -236,8 +246,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.Send_StartSC()
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "release":
+		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
-
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
@@ -255,8 +265,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.Send_StartSC()
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "ack":
+		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
-
 		// Mettre à jour l'horloge vectorielle
 		arr := []int{msg.H1, msg.H2, msg.H3}
 		ctl.horloge_vec = utils.RecalerVec(ctl.horloge_vec, arr)
@@ -273,10 +283,6 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		l.Println(ctl.num, ": ", ctl.tab) // test
 	case "demandeSnapshot":
 		if ctl.color == 0 { // blanc, traiter la demande de snapshot
-			//if ext_num == ctl.num { // initiateur de snapshot
-			//	initiateur =
-			//}
-
 			num, err := strconv.Atoi(ctl.num[1:])
 			if err != nil {
 				// Handle error

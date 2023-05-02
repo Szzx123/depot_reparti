@@ -1,36 +1,29 @@
 package message
 
-//type SnapshotMessage struct {
-//	//message string
-//	site    string
-//	horloge int
-//	color   Color
-//}
-
 type SnapshotMessage struct {
-	Site        string `json:"site"`
-	TypeMessage string `json:"type_message"`
-	Horloge     string `json:"horloge"`
-	Snapshot    string `json:"snapshot"`
+	Site        string `json:"site"`         // site qui appartient l'instantané
+	TypeMessage string `json:"type_message"` // "demandeSnapshot" ou "generateSnapshot"
+	Horloge     string `json:"horloge"`      // horloge vectorielle du site à moment de l'instantané
+	Snapshot    string `json:"snapshot"`     // information de snapshot
 }
 
-type Color int
-
-const (
-	White Color = 0
-	Red   Color = 1
-)
-
-func (c Color) String() string {
-	switch c {
-	case Red:
-		return "rouge"
-	case White:
-		return "blanc"
-	default:
-		return "unknown"
-	}
-}
+//type Color int
+//
+//const (
+//	White Color = 0
+//	Red   Color = 1
+//)
+//
+//func (c Color) String() string {
+//	switch c {
+//	case Red:
+//		return "rouge"
+//	case White:
+//		return "blanc"
+//	default:
+//		return "unknown"
+//	}
+//}
 
 //
 //func New_SnapshotMessage(site string, h int, color Color) *SnapshotMessage {

@@ -1,5 +1,6 @@
 package utils
 
+// RecalerVec calcule l'horloge vectorielle
 func RecalerVec(x, y []int) []int {
 	res := make([]int, 3)
 	res[0] = max(x[0], y[0])
@@ -8,6 +9,7 @@ func RecalerVec(x, y []int) []int {
 	return res
 }
 
+// max retourne l'entier le plus grand
 func max(a, b int) int {
 	if a > b {
 		return a
