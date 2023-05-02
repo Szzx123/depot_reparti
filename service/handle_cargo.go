@@ -32,18 +32,18 @@ func Cargo_Handler(c *gin.Context) {
 func Cargo_Receive_Handler(c *gin.Context) {
 	defer ConnCargo.Close()
 	for {
-		// 读取消息
+		// Lire le message
 		_, message_json, err := ConnCargo.ReadMessage()
 		if err != nil {
 			log.Printf("读取消息失败: %s", err)
 			break
 		}
 
-		// 暂存消息内容
+		// Stockage temporaire du contenu du message
 		message_content := make([]byte, len(message_json))
 		copy(message_content, message_json)
 
-		// 解析 JSON
+		// Analyse de JSON
 		var msg message.CargoMessage
 		if err := json.Unmarshal(message_content, &msg); err != nil {
 			log.Printf("解析 JSON 失败: %s", err)
@@ -57,7 +57,7 @@ func Cargo_Receive_Handler(c *gin.Context) {
 			}
 
 			utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSC") + utils.Msg_format("cargo", msg.Cargo) + utils.Msg_format("operation", msg.Type) + utils.Msg_format("quantity", msg.Quantity))
-			//发送消息
+			// Envoyer un message
 			if err := ConnCargo.WriteMessage(websocket.TextMessage, []byte("demandeSC已收到")); err != nil {
 				log.Printf("发送消息失败: %s", err)
 				break

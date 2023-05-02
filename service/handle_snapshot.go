@@ -24,19 +24,18 @@ func Snapshot_Handler(c *gin.Context) {
 func Snapshot_Receive_Handler(c *gin.Context) {
 	defer ConnSnap.Close()
 	for {
-		// 读取消息
-		//_, message_json, err := conn.ReadMessage()
+		// Lire le message
 		_, message_json, err := ConnSnap.ReadMessage()
 		if err != nil {
 			log.Printf("读取消息失败: %s", err)
 			break
 		}
 
-		// 暂存消息内容
+		// Stockage temporaire du contenu du message
 		message_content := make([]byte, len(message_json))
 		copy(message_content, message_json)
 
-		// 解析 JSON
+		// Analyse de JSON
 		var msg message.SnapshotMessage
 		if err := json.Unmarshal(message_content, &msg); err != nil {
 			log.Printf("解析 JSON 失败: %s", err)
@@ -45,7 +44,7 @@ func Snapshot_Receive_Handler(c *gin.Context) {
 
 		// demande Snapshot
 		utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSnapshot"))
-		// 发送消息
+		// Envoyer un message
 		if err := ConnSnap.WriteMessage(websocket.TextMessage, []byte("demandeSnapshot已收到")); err != nil {
 			log.Printf("发送消息失败: %s", err)
 			break

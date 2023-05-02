@@ -32,6 +32,7 @@ type Controller struct {
 	snapshot    string
 }
 
+//initialisation de toutes les variables
 func New_Controller(num string) *Controller {
 	tab := make(map[string]message.MutexMessage)
 	msg_1 := message.New_MutexMessage("C1", 1, 0, "", 0, "", 0, 0, 0, 1, 1, 1)
@@ -72,7 +73,7 @@ func (ctl *Controller) Run() {
 func (ctl *Controller) Message_Interceptor() {
 	var rcv_msg string
 	l := log.New(os.Stderr, "", 0)
-	// l.Printf(string(ctl.num))
+
 	for {
 		var receiver, sender, cargo, operation string
 		var quantity, stock_A, stock_B, stock_C, h1, h2, h3 int
@@ -346,18 +347,17 @@ func (ctl *Controller) Send_StartSC() {
 		return
 	}
 	num, _ := strconv.Atoi(ctl.num[1:])
-	// l := log.New(os.Stderr, "", 0)
-	// l.Println(ctl.num, "尝试进入Section Critique")
+
 	if ctl.tab[ctl.num].Get_typeMessage() == "request" {
 		for k := range ctl.tab {
 			ext_num, _ := strconv.Atoi(k[1:])
-			// l.Println("本人时钟：", ctl.tab[ctl.num].Get_Horloge(), "本人站点号", num, "对比时钟", ctl.tab[k].Get_Horloge(), "对比站点号", ext_num)
+			//Entrer la section critique avec failure
 			if k != ctl.num && !utils.Compare_Timestamp(ctl.tab[ctl.num].Get_Horloge(), num, ctl.tab[k].Get_Horloge(), ext_num) {
-				// l.Println(ctl.num, "进入Section Critique失败")
+
 				return
 			}
 		}
-		// l.Println(ctl.num, "进入Section Critique成功")
+		//Entrer la section critique avec succès
 		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "débutSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("cargo", ctl.tab[ctl.num].Cargo) + utils.Msg_format("operation", ctl.tab[ctl.num].Operation) + utils.Msg_format("quantity", strconv.Itoa(ctl.tab[ctl.num].Quantity)))
 		ctl.ok = false
 	}
