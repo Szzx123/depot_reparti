@@ -60,8 +60,8 @@ func (ctl *Controller) Display_d() {
 }
 
 func (ctl *Controller) Display_snapshot() {
-	horloge_vectorielle := ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
-	stderr.Println(blue + " * " + ctl.snapshot + horloge_vectorielle + "\n" + raz) // test
+	horloge_vectorielle := "horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+	stderr.Println(blue + " * " + horloge_vectorielle + ", snapshot: " + ctl.snapshot + "\n" + raz) // test
 }
 
 func (ctl *Controller) Run() {
@@ -230,10 +230,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		new_msg := message.New_MutexMessage(ctl.num, ctl.horloge, 0, "", 0, "", stock_A, stock_B, stock_C, ctl.horloge_vec[0], ctl.horloge_vec[1], ctl.horloge_vec[2])
 		ctl.tab[ctl.num] = *new_msg
 
-		// Mettre à jour l'instantané en ajoutant l'information d'horloge vectorielle
-		// ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+		// Mettre à jour l'instantané en ajoutant l'information d'horloge vectorielle au moment de l'opération
+		ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 		// l.Println(ctl.snapshot) // test
-		ctl.Display_snapshot()
 
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
@@ -333,6 +332,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			if err != nil {
 				// Handle error
 			}
+			ctl.Display_snapshot()
 			utils.Msg_send(utils.Msg_format("receiver", "C"+strconv.Itoa(num%3+1)) + utils.Msg_format("type", "finSnapshot") + utils.Msg_format("sender", ctl.num))
 
 			ctl.color = 0
