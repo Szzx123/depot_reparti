@@ -2,12 +2,13 @@ package site
 
 import (
 	"fmt"
-	"github.com/Szzx123/depot_reparti/service"
-	"github.com/gorilla/websocket"
 	"log"
 	"os"
 	"strconv"
 	"sync"
+
+	"github.com/Szzx123/depot_reparti/service"
+	"github.com/gorilla/websocket"
 
 	"github.com/Szzx123/depot_reparti/global"
 	"github.com/Szzx123/depot_reparti/model/message"
@@ -113,7 +114,7 @@ func (site *Site) Message_Interceptor() {
 }
 
 func (site *Site) Message_Handler(msg message.SiteMessage) {
-	l := log.New(os.Stderr, "", 0) // test
+	// l := log.New(os.Stderr, "", 0) // test
 	switch msg.TypeMessage {
 	case "débutSC":
 		// Effectuer les opérations sur les stocks
@@ -133,7 +134,7 @@ func (site *Site) Message_Handler(msg message.SiteMessage) {
 		global.Depot.Set_Cargo("A", msg.Stock_A)
 		global.Depot.Set_Cargo("B", msg.Stock_B)
 		global.Depot.Set_Cargo("C", msg.Stock_C)
-		l.Println(site.Num, ":", global.Depot)
+		// l.Println(site.Num, ":", global.Depot)
 		// Envoyer un message à frontend via websocket pour mettre à jour le tableau des stocks
 		msgCargo := message.CargoMessage{Site: site.Num, TypeMessage: "updateCargo", Stock_A: msg.Stock_A, Stock_B: msg.Stock_B, Stock_C: msg.Stock_C}
 		service.Cargo_Send_Handler(msgCargo)

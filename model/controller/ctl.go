@@ -14,6 +14,12 @@ import (
 
 var (
 	mutex = &sync.Mutex{}
+	// Codes pour le shell
+	rouge  string = "\033[1;31m"
+	orange string = "\033[1;33m"
+	blue   string = "\033[1;34m"
+	raz    string = "\033[0;00m"
+	stderr        = log.New(os.Stderr, "", 0)
 )
 
 type Controller struct {
@@ -45,6 +51,17 @@ func New_Controller(num string) *Controller {
 		horloge_vec: horloge_vec,
 		color:       0,
 	}
+}
+
+func (ctl *Controller) Display_d() {
+	stderr.Printf("%s * Site %s horloge_local: %d \n C1 horloge: %d message_type: %s \t C2 horloge: %d message_type: %s \t C3 horloge: %d message_type: %s\n%s",
+		orange, ctl.num, ctl.horloge, ctl.tab["C1"].Get_Horloge(), ctl.tab["C1"].Get_typeMessage(), ctl.tab["C2"].Get_Horloge(), ctl.tab["C2"].Get_typeMessage(),
+		ctl.tab["C3"].Get_Horloge(), ctl.tab["C3"].Get_typeMessage(), raz)
+}
+
+func (ctl *Controller) Display_snapshot() {
+	ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+	stderr.Println(blue + " * " + ctl.snapshot + "\n" + raz) // test
 }
 
 func (ctl *Controller) Run() {
@@ -196,7 +213,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			}
 		}
 		ctl.ok = true
-		l.Println(ctl.num, ": ", ctl.tab) // test
+		ctl.Display_d() // test
 	case "finSC":
 		// Mettre à jour l'horloge entière
 		ctl.horloge += 1
@@ -214,8 +231,9 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.tab[ctl.num] = *new_msg
 
 		// Mettre à jour l'instantané en ajoutant l'information d'horloge vectorielle
-		ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
-		l.Println(ctl.snapshot) // test
+		// ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+		// l.Println(ctl.snapshot) // test
+		ctl.Display_snapshot()
 
 		// envoyer( [libération] hi ) à tous les autres sites.
 		for i := 1; i <= 3; i++ {
@@ -225,7 +243,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			}
 		}
 		// utils.Msg_send(utils.Msg_format("receiver", "All") + utils.Msg_format("type", "release") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
-		l.Println(ctl.num, ": ", ctl.tab) // test
+		ctl.Display_d() // test
 	case "request":
 		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
@@ -244,7 +262,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) +
 			utils.Msg_format("H1", strconv.Itoa(ctl.horloge_vec[0])) + utils.Msg_format("H2", strconv.Itoa(ctl.horloge_vec[1])) + utils.Msg_format("H3", strconv.Itoa(ctl.horloge_vec[2])))
 		ctl.Send_StartSC()
-		l.Println(ctl.num, ": ", ctl.tab) // test
+		ctl.Display_d() // test
 	case "release":
 		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
@@ -263,7 +281,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 		ctl.tab[ext_num] = *msg
 		utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]) + utils.Msg_format("type", "updateSC") + utils.Msg_format("sender", ctl.num) + utils.Msg_format("horloge", strconv.Itoa(ctl.horloge)) + utils.Msg_format("A", strconv.Itoa(stock_A)) + utils.Msg_format("B", strconv.Itoa(stock_B)) + utils.Msg_format("C", strconv.Itoa(stock_C)))
 		ctl.Send_StartSC()
-		l.Println(ctl.num, ": ", ctl.tab) // test
+		ctl.Display_d() // test
 	case "ack":
 		// Mettre à jour l'horloge entière
 		ctl.horloge = utils.Recaler(ctl.horloge, msg.Get_Horloge())
@@ -280,7 +298,7 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			ctl.tab[ext_num] = *msg
 		}
 		ctl.Send_StartSC()
-		l.Println(ctl.num, ": ", ctl.tab) // test
+		ctl.Display_d() // test
 	case "demandeSnapshot":
 		if ctl.color == 0 { // blanc, traiter la demande de snapshot
 			num, err := strconv.Atoi(ctl.num[1:])
@@ -294,7 +312,8 @@ func (ctl *Controller) Message_Handler(msg *message.MutexMessage) {
 			// generate snapshot
 			horloge_snapshot := "[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 			l.Println(horloge_snapshot)
-			l.Println(ctl.snapshot)
+			// l.Println(ctl.snapshot)
+			ctl.Display_snapshot()
 			utils.Msg_send(utils.Msg_format("receiver", "A"+ctl.num[1:]+utils.Msg_format("type", "generateSnapshot")+utils.Msg_format("sender", ctl.num)+utils.Msg_format("horloge_snapshot", horloge_snapshot)+utils.Msg_format("snapshot", ctl.snapshot)))
 
 			// changer la couleur du site à rouge
