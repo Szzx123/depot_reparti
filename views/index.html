@@ -8,7 +8,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">WareHouse</a>
+    <a class="navbar-brand" id="id-warehouse" href="#">WareHouse</a>
 </nav>
 
 <div class="container mt-5">
@@ -92,6 +92,8 @@
     } else if (site === "8082") {
         site = "A3"
     }
+
+    document.getElementById("id-warehouse").innerText = "Warehouse " + site;
 
     function addToLog(message) {
         var logs = document.getElementById("logs");
