@@ -15,7 +15,7 @@ func Snapshot_Handler(c *gin.Context) {
 	var err error
 	ConnSnap, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("升级 WebSocket 失败: %s", err)
+		log.Printf("Upgrade WebSocket Failure: %s", err)
 		return
 	}
 	go Snapshot_Receive_Handler(c)
@@ -27,7 +27,7 @@ func Snapshot_Receive_Handler(c *gin.Context) {
 		// Lire le message
 		_, message_json, err := ConnSnap.ReadMessage()
 		if err != nil {
-			log.Printf("读取消息失败: %s", err)
+			log.Printf("Read Message Failure: %s", err)
 			break
 		}
 
@@ -38,7 +38,7 @@ func Snapshot_Receive_Handler(c *gin.Context) {
 		// Analyse de JSON
 		var msg message.SnapshotMessage
 		if err := json.Unmarshal(message_content, &msg); err != nil {
-			log.Printf("解析 JSON 失败: %s", err)
+			log.Printf("Analyse JSON Failure: %s", err)
 			continue
 		}
 
@@ -46,7 +46,7 @@ func Snapshot_Receive_Handler(c *gin.Context) {
 		utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSnapshot"))
 		// Envoyer un message
 		if err := ConnSnap.WriteMessage(websocket.TextMessage, []byte("demandeSnapshot已收到")); err != nil {
-			log.Printf("发送消息失败: %s", err)
+			log.Printf("Send Message Failure: %s", err)
 			break
 		}
 

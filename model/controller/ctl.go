@@ -32,7 +32,7 @@ type Controller struct {
 	snapshot    string
 }
 
-//initialisation de toutes les variables
+// initialisation de toutes les variables
 func New_Controller(num string) *Controller {
 	tab := make(map[string]message.MutexMessage)
 	msg_1 := message.New_MutexMessage("C1", 1, 0, "", 0, "", 0, 0, 0, 1, 1, 1)

@@ -23,7 +23,7 @@ func Cargo_Handler(c *gin.Context) {
 	var err error
 	ConnCargo, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("升级 WebSocket 失败: %s", err)
+		log.Printf("Upgrade WebSocket Failure: %s", err)
 		return
 	}
 	go Cargo_Receive_Handler(c)
@@ -35,7 +35,7 @@ func Cargo_Receive_Handler(c *gin.Context) {
 		// Lire le message
 		_, message_json, err := ConnCargo.ReadMessage()
 		if err != nil {
-			log.Printf("读取消息失败: %s", err)
+			log.Printf("Read Message Failure: %s", err)
 			break
 		}
 
@@ -46,7 +46,7 @@ func Cargo_Receive_Handler(c *gin.Context) {
 		// Analyse de JSON
 		var msg message.CargoMessage
 		if err := json.Unmarshal(message_content, &msg); err != nil {
-			log.Printf("解析 JSON 失败: %s", err)
+			log.Printf("Analyse JSON Failure: %s", err)
 			continue
 		}
 
@@ -59,7 +59,7 @@ func Cargo_Receive_Handler(c *gin.Context) {
 			utils.Msg_send(utils.Msg_format("receiver", "C"+msg.Site[1:]) + utils.Msg_format("type", "demandeSC") + utils.Msg_format("cargo", msg.Cargo) + utils.Msg_format("operation", msg.Type) + utils.Msg_format("quantity", msg.Quantity))
 			// Envoyer un message
 			if err := ConnCargo.WriteMessage(websocket.TextMessage, []byte("demandeSC已收到")); err != nil {
-				log.Printf("发送消息失败: %s", err)
+				log.Printf("Send Message Failure: %s", err)
 				break
 			}
 		}
