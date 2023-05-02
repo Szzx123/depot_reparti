@@ -60,7 +60,7 @@ func (ctl *Controller) Display_d() {
 }
 
 func (ctl *Controller) Display_snapshot() {
-	ctl.snapshot = "horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
+	ctl.snapshot = ctl.snapshot + ",horloge_vectorielle[" + strconv.Itoa(ctl.horloge_vec[0]) + "," + strconv.Itoa(ctl.horloge_vec[1]) + "," + strconv.Itoa(ctl.horloge_vec[2]) + "]"
 	stderr.Println(blue + " * " + ctl.snapshot + "\n" + raz) // test
 }
 
